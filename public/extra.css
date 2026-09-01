@@ -492,7 +492,25 @@
   border-radius: var(--radius);
   margin-top: 14px;
 }
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  font-weight: 700;
+  margin-right: 4px;
+  user-select: none;
+}
 
+.draggable-row[draggable="true"] {
+  cursor: grab;
+}
+
+.draggable-row.dragging {
+  opacity: 0.4;
+}
+
+.draggable-row.drag-over {
+  border-top: 2px solid var(--brand-teal) !important;
+}
 
 
 

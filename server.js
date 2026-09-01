@@ -3,12 +3,14 @@ const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
-function today() { return new Date().toISOString().slice(0, 10); }
+function today() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+}
 
 function inferCategory(name) {
   const norm = normalize(name);
@@ -43,7 +45,14 @@ function readDb() {
 
 function writeDb(db) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  const payload = JSON.stringify(db, null, 2);
+  const tmp = DB_FILE + '.tmp';
+  const bak = DB_FILE + '.bak';
+  if (fs.existsSync(DB_FILE)) {
+    try { fs.copyFileSync(DB_FILE, bak); } catch (_) {}
+  }
+  fs.writeFileSync(tmp, payload);
+  fs.renameSync(tmp, DB_FILE);
 }
 
 function id(prefix) {
@@ -117,9 +126,58 @@ function dayFor(db, date) {
 
 function normalize(v) { return String(v || '').trim().toUpperCase().replace(/\s+/g, ' '); }
 function matchKey(v) { return normalize(v).replace(/\bDE LLEVAR\b/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9]/g, ''); }
-function saleRecord(db, productId, quantity) {
+function saleRecord(db, productId, quantity, unitPrice) {
   const product = db.products.find(p => p.id === productId);
-  return { productId, quantity: Number(quantity), productName: product?.name || '', price: Number(product?.price || 0), directSale: Boolean(product?.directSale), recipeSnapshot: (product?.recipe || []).map(r => ({ insumoId: r.insumoId, quantity: Number(r.quantity) })) };
+  const price = unitPrice != null && Number(unitPrice) > 0
+    ? Number(unitPrice)
+    : Number(product?.price || 0);
+  return {
+    productId,
+    quantity: Number(quantity),
+    productName: product?.name || '',
+    price,
+    directSale: Boolean(product?.directSale),
+    recipeSnapshot: (product?.recipe || []).map(r => ({
+      insumoId: r.insumoId,
+      quantity: Number(r.quantity)
+    }))
+  };
+}
+function applyOrder(items, orderList, keyFn) {
+  if (!Array.isArray(orderList) || !orderList.length) return items;
+  const indexOf = key => {
+    const idx = orderList.indexOf(key);
+    return idx === -1 ? Infinity : idx;
+  };
+  return items.slice().sort((a, b) => indexOf(keyFn(a)) - indexOf(keyFn(b)));
+}
+
+function getResolvedRecipe(productId, db, visited = new Set()) {
+  const product = db.products.find(p => p.id === productId);
+  if (!product || !product.recipe || visited.has(productId)) return [];
+  
+  visited.add(productId);
+  let resolvedInsumos = [];
+
+  product.recipe.forEach(item => {
+    // Caso 1: Es un insumo directo del catálogo
+    const isDirectInsumo = db.insumos.some(i => i.id === item.insumoId);
+    
+    if (isDirectInsumo) {
+      resolvedInsumos.push({ insumoId: item.insumoId, quantity: Number(item.quantity) });
+    } else {
+      // Caso 2: Es otro producto (ej. Hamburguesa Mediana dentro de un Combo)
+      const subProductInsumos = getResolvedRecipe(item.insumoId, db, new Set(visited));
+      subProductInsumos.forEach(subItem => {
+        resolvedInsumos.push({
+          insumoId: subItem.insumoId,
+          quantity: subItem.quantity * Number(item.quantity)
+        });
+      });
+    }
+  });
+
+  return resolvedInsumos;
 }
 
 function report(db, day) {
@@ -128,11 +186,20 @@ function report(db, day) {
     const entries = movements.filter(m => m.type === 'entry').reduce((s, m) => s + Number(m.quantity), 0);
     const adjustments = movements.filter(m => ['waste', 'employee', 'gift'].includes(m.type)).reduce((s, m) => s + Number(m.quantity), 0);
     let theoretical = 0;
+
     day.sales.forEach(s => {
-      const p = db.products.find(x => x.id === s.productId);
-      const recipe = s.recipeSnapshot || p?.recipe || [];
-      recipe.filter(r => r.insumoId === insumo.id).forEach(r => theoretical += r.quantity * s.quantity);
+      const liveProduct = db.products.find(p => p.id === s.productId);
+      const recipe = (liveProduct && liveProduct.recipe && liveProduct.recipe.length > 0)
+        ? getResolvedRecipe(s.productId, db)
+        : (s.recipeSnapshot && s.recipeSnapshot.length > 0 ? s.recipeSnapshot : []);
+
+      recipe.forEach(r => {
+        if (r.insumoId === insumo.id) {
+          theoretical += r.quantity * s.quantity;
+        }
+      });
     });
+
     const calculatedOut = Number(day.opening[insumo.id] || 0) + entries - Number(day.physical[insumo.id] || 0) - adjustments;
     const difference = calculatedOut - theoretical;
     return { insumo, opening: Number(day.opening[insumo.id] || 0), entries, adjustments, physical: Number(day.physical[insumo.id] || 0), calculatedOut, theoretical, difference, value: difference * insumo.price };
@@ -143,8 +210,7 @@ function report(db, day) {
   const platforms = Object.values(day.payments).reduce((s, x) => s + Number(x), 0) - Number(day.payments.cash || 0);
   const productBreakdown = day.sales.filter(s => Number(s.quantity) > 0).map(s => {
     const product = db.products.find(p => p.id === s.productId);
-    const recipe = s.recipeSnapshot || product?.recipe || [];
-    return {
+    const recipe = (product && product.recipe && product.recipe.length > 0) ? product.recipe : (s.recipeSnapshot || []);    return {
       name: s.productName || product?.name || 'Producto eliminado',
       category: product?.category || inferCategory(s.productName || product?.name || ''),
       subgroup: product?.subgroup || inferSubgroup(s.productName || product?.name || ''),
@@ -201,8 +267,7 @@ function report(db, day) {
     if (qty > 0) {
       matchingSales.forEach(s => {
         const sQty = Number(s.quantity || 0);
-        const recipe = s.recipeSnapshot || p.recipe || [];
-        recipe.forEach(r => {
+        const recipe = (p.recipe && p.recipe.length > 0) ? p.recipe : (s.recipeSnapshot || []);        recipe.forEach(r => {
           const insumo = db.insumos.find(i => i.id === r.insumoId);
           if (!insumo) return;
           const ingQty = r.quantity * sQty;
@@ -261,9 +326,18 @@ function report(db, day) {
         (prod?.recipe || []).forEach(r => insumoIds.add(r.insumoId));
       });
 
+      // Filtro de "Editar Visibles" guardado para este subgrupo
+      const auditKey = `${c.category}_${sg.subgroup}`;
+      const subgroupSettings = db.settings?.auditedInsumos?.[auditKey];
+
       const insumosAudit = Array.from(insumoIds).map(insumoId => {
         const insumo = db.insumos.find(i => i.id === insumoId);
         if (!insumo || !insumo.name) return null;
+
+        if (subgroupSettings && Array.isArray(subgroupSettings) && !subgroupSettings.includes(insumoId)) {
+          return null;
+        }
+
         const theoItem = sg.insumosTheoretical[insumoId];
         const theoretical = theoItem ? theoItem.theoretical : 0;
         const invMatch = inventory.find(inv => inv.insumo.id === insumoId);
@@ -278,14 +352,19 @@ function report(db, day) {
         };
       }).filter(Boolean);
 
+      const productOrderKey = `${c.category}_${sg.subgroup}`;
+      const orderedProducts = applyOrder(sg.products, db.settings?.productOrder?.[productOrderKey], p => p.id);
+
       return {
         subgroup: sg.subgroup,
         totalUnits: sg.totalUnits,
         totalSalesValue: sg.totalSalesValue,
-        products: sg.products,
+        products: orderedProducts,
         insumosAudit
       };
     });
+
+    const orderedSubgroups = applyOrder(subgroups, db.settings?.subgroupOrder?.[c.category], s => s.subgroup);
 
     const categoryInsumosAudit = Object.values(c.categoryInsumosTheoretical).map(item => {
       const invMatch = inventory.find(inv => inv.insumo.id === item.insumo.id);
@@ -304,7 +383,7 @@ function report(db, day) {
       category: c.category,
       totalUnits: c.totalUnits,
       totalSalesValue: c.totalSalesValue,
-      subgroups,
+      subgroups: orderedSubgroups,
       categoryInsumosAudit
     };
   });
@@ -358,18 +437,55 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const db = readDb();
   try {
+
     if (url.pathname === '/api/bootstrap' && req.method === 'GET') {
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       writeDb(db);
-      return json(res, 200, { db: { insumos: db.insumos, products: db.products, settings: db.settings }, day: d, report: report(db, d) });
-    }
-    if (url.pathname === '/api/day' && req.method === 'POST') {
-      const data = await body(req);
-      const d = dayFor(db, data.date || today());
-      Object.assign(d, data.patch || {});
+      return json(res, 200, {
+        db: { insumos: db.insumos, products: db.products, settings: db.settings },
+        day: d,
+        report: report(db, d)
+      });
+    }    
+if (url.pathname === '/api/day' && req.method === 'POST') {
+  const data = await body(req);
+  const d = dayFor(db, data.date || today());
+  const patch = data.patch || {};
+
+  // Solo campos permitidos (no se puede pisar sales, id, date, etc.)
+  if (patch.payments && typeof patch.payments === 'object') {
+    d.payments = {
+      cash: Number(patch.payments.cash || 0),
+      nequi: Number(patch.payments.nequi || 0),
+      bancolombia: Number(patch.payments.bancolombia || 0),
+      credit: Number(patch.payments.credit || 0),
+      vouchers: Number(patch.payments.vouchers || 0)
+    };
+  }
+
+  if (patch.physical && typeof patch.physical === 'object') {
+    // MERGE: no borra insumos que no están en pantalla
+    d.physical = {
+      ...d.physical,
+      ...Object.fromEntries(
+        Object.entries(patch.physical).map(([k, v]) => [k, Number(v || 0)])
+      )
+    };
+  }
+
+  writeDb(db);
+  return json(res, 200, { day: d, report: report(db, d) });
+}
+
+        if (url.pathname === '/api/settings' && req.method === 'POST') {
+      const x = await body(req);
+      if (!db.settings) db.settings = {};
+      Object.assign(db.settings, x.patch || {});
       writeDb(db);
-      return json(res, 200, { day: d, report: report(db, d) });
+      const date = url.searchParams.get('date') || today();
+      const d = dayFor(db, date);
+      return json(res, 200, { settings: db.settings, day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/movement' && req.method === 'POST') {
       const x = await body(req);
@@ -493,24 +609,113 @@ const server = http.createServer(async (req, res) => {
       writeDb(db);
       return json(res, 200, { insumos: db.insumos, products: db.products, added, updated, removed, missing: [...new Set(missing)] });
     }
-    if (url.pathname === '/api/catalog' && req.method === 'POST') {
+if (url.pathname === '/api/catalog' && req.method === 'POST') {
       const x = await body(req);
-      if (x.kind === 'insumo') db.insumos.push({ id: id('i'), name: x.name, unit: x.unit || 'unidad', price: Number(x.price || 0), active: true });
-      if (x.kind === 'product') db.products.push({ id: id('p'), name: x.name, price: Number(x.price || 0), recipe: x.recipe || [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) });
+      if (x.kind === 'insumo') {
+        const newInsumoId = id('i');
+        db.insumos.push({
+          id: newInsumoId,
+          name: String(x.name || '').trim(),
+          unit: String(x.unit || 'unidad').trim(),
+          price: Number(x.price || 0),
+          active: true
+        });
+
+        if (Array.isArray(x.productAssignments)) {
+          db.products.forEach(p => {
+            const assignment = x.productAssignments.find(a => a.productId === p.id);
+            if (assignment && Number(assignment.quantity) > 0) {
+              p.recipe.push({ insumoId: newInsumoId, quantity: Number(assignment.quantity) });
+            }
+          });
+        }
+      }
+      if (x.kind === 'product') {
+        db.products.push({
+          id: id('p'),
+          name: String(x.name || '').trim(),
+          price: Number(x.price || 0),
+          recipe: Array.isArray(x.recipe) ? x.recipe : [],
+          directSale: Boolean(x.directSale),
+          category: String(x.category || '').trim() || inferCategory(x.name),
+          subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name)
+        });
+      }
       writeDb(db);
       return json(res, 201, { insumos: db.insumos, products: db.products });
     }
-    if (url.pathname.startsWith('/api/catalog/') && req.method === 'PUT') {
-      const [, , , kind, entityId] = url.pathname.split('/');
+        if (url.pathname === '/api/catalog/price' && req.method === 'POST') {
       const x = await body(req);
-      const collection = kind === 'insumo' ? db.insumos : kind === 'product' ? db.products : null;
-      const entity = collection?.find(i => i.id === entityId);
-      if (!entity) return json(res, 404, { error: 'Registro no encontrado' });
-      if (kind === 'insumo') Object.assign(entity, { name: String(x.name || '').trim(), unit: String(x.unit || 'unidad').trim(), price: Number(x.price || 0), active: x.active !== false });
-      if (kind === 'product') Object.assign(entity, { name: String(x.name || '').trim(), price: Number(x.price || 0), recipe: Array.isArray(x.recipe) ? x.recipe : [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) });
+      const product = db.products.find(p => p.id === x.productId);
+      if (!product) return json(res, 404, { error: 'Producto no encontrado' });
+      product.price = Number(x.price || 0);
+      if (x.clearUnregistered) product.unregistered = false;
+      writeDb(db);
+      return json(res, 200, { products: db.products });
+    }
+
+    if (url.pathname === '/api/catalog/batch-subgroup' && req.method === 'POST') {
+      const { category, subgroup, productIds } = await body(req);
+      db.products.forEach(p => {
+        if (productIds.includes(p.id)) {
+          p.category = category;
+          p.subgroup = subgroup;
+        } else if (p.category === category && p.subgroup === subgroup) {
+          p.subgroup = 'Especiales / Otros';
+        }
+      });
       writeDb(db);
       return json(res, 200, { insumos: db.insumos, products: db.products });
     }
+
+        if (url.pathname.startsWith('/api/catalog/') && req.method === 'PUT') {
+      const [, , , kind, entityId] = url.pathname.split('/');
+      const x = await body(req);
+
+      if (kind === 'insumo') {
+        const entity = db.insumos.find(i => i.id === entityId);
+        if (!entity) return json(res, 404, { error: 'Insumo no encontrado' });
+
+        Object.assign(entity, {
+          name: String(x.name || '').trim(),
+          unit: String(x.unit || 'unidad').trim(),
+          price: Number(x.price || 0),
+          active: x.active !== false
+        });
+
+        if (Array.isArray(x.productAssignments)) {
+          db.products.forEach(p => {
+            p.recipe = (p.recipe || []).filter(r => r.insumoId !== entityId);
+            const match = x.productAssignments.find(a => a.productId === p.id);
+            if (match && Number(match.quantity) > 0) {
+              p.recipe.push({ insumoId: entityId, quantity: Number(match.quantity) });
+            }
+          });
+        }
+
+        writeDb(db);
+        return json(res, 200, { insumos: db.insumos, products: db.products });
+      }
+
+      if (kind === 'product') {
+        const entity = db.products.find(p => p.id === entityId);
+        if (!entity) return json(res, 404, { error: 'Producto no encontrado' });
+
+        Object.assign(entity, {
+          name: String(x.name || '').trim(),
+          price: Number(x.price || 0),
+          recipe: Array.isArray(x.recipe) ? x.recipe : [],
+          directSale: Boolean(x.directSale),
+          unregistered: false,
+          category: String(x.category || '').trim() || inferCategory(x.name),
+          subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name)
+        });
+
+        writeDb(db);
+        return json(res, 200, { insumos: db.insumos, products: db.products });
+      }
+    }
+
     if (url.pathname.startsWith('/api/catalog/') && req.method === 'DELETE') {
       const [, , , kind, entityId] = url.pathname.split('/');
       if (kind === 'insumo') {
@@ -637,4 +842,6 @@ server.on('error', (err) => {
   }
 });
 
-server.listen(PORT, () => console.log(`Wander listo en http://localhost:${PORT}`));
+server.listen(PORT, '127.0.0.1', () =>
+  console.log(`Wander listo en http://127.0.0.1:${PORT}`)
+);
