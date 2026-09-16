@@ -132,6 +132,15 @@ function toast(t) {
   setTimeout(() => e.classList.remove('show'), 2800);
 }
 
+function showQuotaWarning() {
+  if (document.getElementById('quota-warning-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'quota-warning-banner';
+  banner.innerHTML = `⚠️ <b>Límite diario de la nube superado</b>. Los datos se guardan temporalmente en este dispositivo pero se <b>PERDERÁN</b> si publicas o reinicias la app hoy. El límite se reinicia a la medianoche.`;
+  banner.style = 'position:fixed; bottom:0; left:0; right:0; background:#ef4444; color:white; padding:12px; text-align:center; z-index:99999; font-size:13px; font-weight:500; box-shadow:0 -4px 6px -1px rgba(0,0,0,0.1);';
+  document.body.appendChild(banner);
+}
+
 async function api(url, method = 'GET', data) {
   const raw = data instanceof FormData || data instanceof ArrayBuffer || ArrayBuffer.isView(data);
   const r = await fetch(url, {
@@ -141,6 +150,7 @@ async function api(url, method = 'GET', data) {
   });
   const x = await r.json();
   if (!r.ok) throw Error(x.error || 'Error en la solicitud');
+  if (x.quotaWarning) showQuotaWarning();
   return x;
 }
 
@@ -172,13 +182,26 @@ function render() {
   // Sales List
   const salesList = $('#salesList');
   if (salesList) {
-    salesList.innerHTML = day.sales.length ? day.sales.map(s => {
-      const p = db.products.find(p => p.id === s.productId);
-      return `<div class="row">
-        <span><b>${s.productName || p?.name || 'Producto'}</b> <small>${num(s.quantity)} und.</small></span>
-        <b>${money(s.quantity * (s.price ?? p?.price ?? 0))}</b>
-      </div>`;
-    }).join('') : '<p class="hint">Aún no hay ventas registradas en la tirilla.</p>';
+    salesList.innerHTML = day.sales.length ? `
+      <div class="sales-table-box">
+        <div class="sales-table-header">
+          <span class="sales-col-prod">PRODUCTO VENDIDO</span>
+          <span class="sales-col-qty">CANTIDAD</span>
+          <span class="sales-col-price">TOTAL VENTA</span>
+        </div>
+        <div class="sales-table-body">
+          ${day.sales.map(s => {
+            const p = db.products.find(p => p.id === s.productId);
+            const total = s.quantity * (s.price ?? p?.price ?? 0);
+            return `<div class="sales-row">
+              <span class="sales-col-prod"><b>${s.productName || p?.name || 'Producto'}</b></span>
+              <span class="sales-col-qty"><span class="badge badge-info">${num(s.quantity)} und.</span></span>
+              <span class="sales-col-price"><b>${money(total)}</b></span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    ` : '<p class="hint">Aún no hay ventas registradas en la tirilla.</p>';
   }
 
   // Movements List
@@ -243,6 +266,116 @@ function render() {
   // Catalog Lists
   renderCatalogLists();
   renderCatalogEditor();
+}
+
+// Collapsible states for Categories and Subgroups
+const collapsedCategories = new Set();
+const collapsedSubgroups = new Set();
+
+function toggleCategoryCollapse(catName) {
+  if (collapsedCategories.has(catName)) {
+    collapsedCategories.delete(catName);
+  } else {
+    collapsedCategories.add(catName);
+  }
+  const card = document.querySelector(`.category-list-card[data-drag-cat="${CSS.escape(catName)}"]`);
+  if (card) {
+    const isNow = collapsedCategories.has(catName);
+    card.classList.toggle('is-collapsed', isNow);
+    const chevron = card.querySelector('.category-chevron');
+    if (chevron) chevron.classList.toggle('collapsed', isNow);
+    const btn = card.querySelector('[data-toggle-cat-btn]');
+    if (btn) {
+      btn.title = isNow ? 'Desplegar categoría' : 'Plegar categoría';
+      btn.setAttribute('aria-expanded', !isNow);
+    }
+  }
+  updateGlobalCollapseButtonLabel();
+}
+
+function toggleSubgroupCollapse(subKey) {
+  if (collapsedSubgroups.has(subKey)) {
+    collapsedSubgroups.delete(subKey);
+  } else {
+    collapsedSubgroups.add(subKey);
+  }
+  const subBlock = document.querySelector(`.subgroup-card-block[data-subkey="${CSS.escape(subKey)}"]`);
+  if (subBlock) {
+    const isNow = collapsedSubgroups.has(subKey);
+    subBlock.classList.toggle('is-collapsed', isNow);
+    const chevron = subBlock.querySelector('.subgroup-chevron');
+    if (chevron) chevron.classList.toggle('collapsed', isNow);
+    const btn = subBlock.querySelector('[data-toggle-sub-btn]');
+    if (btn) {
+      btn.title = isNow ? 'Desplegar subgrupo' : 'Plegar subgrupo';
+      btn.setAttribute('aria-expanded', !isNow);
+    }
+  }
+  updateGlobalCollapseButtonLabel();
+}
+
+function toggleAllCategoriesAndSubgroups() {
+  const breakdown = state.report?.categoryBreakdown || [];
+  if (!breakdown.length) return;
+  const allCollapsed = breakdown.every(c => collapsedCategories.has(c.category));
+
+  if (allCollapsed) {
+    // Expand all
+    collapsedCategories.clear();
+    collapsedSubgroups.clear();
+  } else {
+    // Collapse all
+    breakdown.forEach(c => {
+      collapsedCategories.add(c.category);
+      (c.subgroups || []).forEach(sg => {
+        collapsedSubgroups.add(`${c.category}::${sg.subgroup}`);
+      });
+    });
+  }
+
+  // Update DOM classes for instant visual response
+  document.querySelectorAll('.category-list-card').forEach(card => {
+    const cat = card.dataset.dragCat;
+    const isCol = collapsedCategories.has(cat);
+    card.classList.toggle('is-collapsed', isCol);
+    const chevron = card.querySelector('.category-chevron');
+    if (chevron) chevron.classList.toggle('collapsed', isCol);
+    const btn = card.querySelector('[data-toggle-cat-btn]');
+    if (btn) {
+      btn.title = isCol ? 'Desplegar categoría' : 'Plegar categoría';
+      btn.setAttribute('aria-expanded', !isCol);
+    }
+  });
+
+  document.querySelectorAll('.subgroup-card-block').forEach(subBlock => {
+    const subKey = subBlock.dataset.subkey;
+    const isCol = collapsedSubgroups.has(subKey);
+    subBlock.classList.toggle('is-collapsed', isCol);
+    const chevron = subBlock.querySelector('.subgroup-chevron');
+    if (chevron) chevron.classList.toggle('collapsed', isCol);
+    const btn = subBlock.querySelector('[data-toggle-sub-btn]');
+    if (btn) {
+      btn.title = isCol ? 'Desplegar subgrupo' : 'Plegar subgrupo';
+      btn.setAttribute('aria-expanded', !isCol);
+    }
+  });
+
+  updateGlobalCollapseButtonLabel();
+}
+
+function updateGlobalCollapseButtonLabel() {
+  const textEl = $('#toggleCollapseAllCatsText');
+  const iconEl = $('#toggleCollapseAllCatsIcon');
+  if (!textEl) return;
+  const breakdown = state.report?.categoryBreakdown || [];
+  const allCollapsed = breakdown.length > 0 && breakdown.every(c => collapsedCategories.has(c.category));
+  if (allCollapsed) {
+    textEl.textContent = 'Desplegar Todo';
+    if (iconEl) iconEl.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline>';
+  } else {
+    textEl.textContent = 'Plegar Todo';
+    if (iconEl) iconEl.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline>';
+  }
 }
 
 function renderCategoryBreakdown() {
@@ -341,220 +474,255 @@ function renderCategoryBreakdown() {
       subs.sort((a, b) => (sMap.has(a.subgroup) ? sMap.get(a.subgroup) : 999) - (sMap.has(b.subgroup) ? sMap.get(b.subgroup) : 999));
     }
 
+    const isCatCollapsed = collapsedCategories.has(cat.category);
+
     return `
-    <div class="category-list-card ${isCatHidden ? 'dimmed-card' : ''}" data-drag-cat="${cat.category}" style="${isCatHidden ? 'opacity:0.6; border:1px dashed #94a3b8;' : ''}">
-      <div class="category-list-header ${isEdit ? 'in-edit-mode' : ''}">
-        <div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            ${isEdit ? `
-              <div class="category-order-controls">
-                <span class="drag-handle" data-drag-handle-cat="${cat.category}" title="Arrastre para mover esta categoría entera">⠿</span>
-                <button type="button" class="ctrl-btn" data-move-cat="up" data-cat="${cat.category}" ${catIdx === 0 ? 'disabled' : ''} title="Mover categoría arriba">▲</button>
-                <button type="button" class="ctrl-btn" data-move-cat="down" data-cat="${cat.category}" ${catIdx === breakdown.length - 1 ? 'disabled' : ''} title="Mover categoría abajo">▼</button>
-                <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-cat="${cat.category}" title="${isCatHidden ? 'Mostrar categoría' : 'Ocultar categoría'}">
-                  ${isCatHidden ? '👁+' : '👁‍🗨'}
-                </button>
-              </div>
-            ` : ''}
-            <h3 style="margin:0;">CATEGORÍA: ${cat.category.toUpperCase()} ${isCatHidden ? '<span class="badge badge-danger" style="font-size:10px;">Oculta</span>' : ''}</h3>
-          </div>
-          <span class="hint">Auditoría detallada por subgrupo y comparación con salida de inventario físico</span>
-        </div>
-        <div style="text-align:right;">
-          <span class="badge badge-ok" style="font-size:12px;">Total Categoría: ${num(cat.totalUnits)} und.</span>
-          <div style="font-size:16px; font-weight:800; color:var(--brand-teal); margin-top:2px;">${money(cat.totalSalesValue)}</div>
-        </div>
-      </div>
-
-      <div class="subgroups-container" data-cat-name="${cat.category}">
-      ${subs.map((sg, subIdx) => {
-        const isSubHidden = hiddenSubForCat.includes(sg.subgroup);
-        if (!isEdit && isSubHidden) return '';
-
-        const subKey = `${cat.category}::${sg.subgroup}`;
-        const prodOrder = vs.productOrder?.[subKey] || [];
-        const hiddenInsumosForSub = hiddenSubgroupInsumos[subKey] || [];
-
-        let prods = [...(sg.products || [])];
-        if (prodOrder.length) {
-          const pMap = new Map(prodOrder.map((p, i) => [p, i]));
-          prods.sort((a, b) => (pMap.has(a.id || a.name) ? pMap.get(a.id || a.name) : 999) - (pMap.has(b.id || b.name) ? pMap.get(b.id || b.name) : 999));
-        }
-
-        // Subgroup insumos audit list (in edit mode show all raw so user can reorder or toggle)
-        const subAuditSource = isEdit ? (sg.allInsumosAudit || sg.insumosAudit || []) : (sg.insumosAudit || []);
-        let subAuditList = [...subAuditSource];
-        const subInsumoOrderList = vs.subgroupInsumoOrder?.[subKey];
-        if (subInsumoOrderList && subInsumoOrderList.length) {
-          const siaMap = new Map(subInsumoOrderList.map((id, i) => [id, i]));
-          subAuditList.sort((a, b) => (siaMap.has(a.insumo?.id) ? siaMap.get(a.insumo?.id) : 999) - (siaMap.has(b.insumo?.id) ? siaMap.get(b.insumo?.id) : 999));
-        }
-
-        return `
-        <div class="subgroup-card-block" data-drag-sub="${sg.subgroup}" data-cat="${cat.category}" style="${isSubHidden ? 'opacity:0.55; border:1px dashed #cbd5e1;' : ''}">
-          <div class="table-wrap">
-            <table class="excel-like-table">
-              <thead>
-                <tr class="excel-subgroup-title-row">
-                  <th>
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-                      <div style="display:flex; align-items:center; gap:6px;">
-                        ${isEdit ? `
-                          <div class="ctrl-group">
-                            <span class="drag-handle" title="Arrastre para mover este subgrupo">⠿</span>
-                            <button type="button" class="ctrl-btn" data-move-sub="up" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === 0 ? 'disabled' : ''} title="Mover subgrupo arriba">▲</button>
-                            <button type="button" class="ctrl-btn" data-move-sub="down" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === subs.length - 1 ? 'disabled' : ''} title="Mover subgrupo abajo">▼</button>
-                            <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-sub="${sg.subgroup}" data-cat="${cat.category}" title="${isSubHidden ? 'Mostrar subgrupo' : 'Ocultar subgrupo'}">
-                              ${isSubHidden ? '👁+' : '👁‍🗨'}
-                            </button>
-                          </div>
-                        ` : ''}
-                        <span>${cat.category.toUpperCase()} ${sg.subgroup.toUpperCase()} ${isSubHidden ? '(Oculto)' : ''}</span>
-                      </div>
-                      ${isEdit ? `
-                        <button type="button" class="manage-subgroup-btn" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}" title="Editar o agregar qué productos van en este subgrupo">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
-                          Editar / Añadir Productos
-                        </button>
-                      ` : ''}
-                    </div>
-                  </th>
-                  <th style="text-align:center; width:100px;">CANTIDAD</th>
-                  <th style="text-align:right; width:140px;">VALOR ($)</th>
-                </tr>
-              </thead>
-              <tbody class="products-sortable-body" data-subkey="${subKey}">
-                ${prods.length === 0 ? `
-                  <tr>
-                    <td colspan="3" style="text-align:center; padding:12px; font-size:12.5px; color:var(--muted); background:#fafafa;">
-                      Sin productos asignados a este subgrupo.
-                      ${isEdit ? `
-                        <button type="button" class="manage-subgroup-btn" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}" style="margin-left:8px;">
-                          + Seleccionar Productos
-                        </button>
-                      ` : ''}
-                    </td>
-                  </tr>
-                ` : prods.map((p, prodIdx) => {
-                  const pKey = p.id || p.name;
-                  const isProdHidden = hiddenProducts.includes(pKey);
-                  if (!isEdit && isProdHidden) return '';
-
-                  return `
-                  <tr class="${p.quantity > 0 ? 'sold-row' : 'zero-row'}" data-drag-prod="${pKey}" style="${isProdHidden ? 'opacity:0.5;' : ''}">
-                    <td>
-                      <div style="display:flex; align-items:center; gap:6px;">
-                        ${isEdit ? `
-                          <div class="ctrl-group">
-                            <span class="drag-handle" title="Arrastre con el ratón para poner este producto donde quiera">⠿</span>
-                            <button type="button" class="ctrl-btn" data-move-prod="up" data-cat="${cat.category}" data-sub="${sg.subgroup}" data-prod="${pKey}" ${prodIdx === 0 ? 'disabled' : ''} title="Subir producto">▲</button>
-                            <button type="button" class="ctrl-btn" data-move-prod="down" data-cat="${cat.category}" data-sub="${sg.subgroup}" data-prod="${pKey}" ${prodIdx === prods.length - 1 ? 'disabled' : ''} title="Bajar producto">▼</button>
-                            <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-prod="${pKey}" title="${isProdHidden ? 'Mostrar producto' : 'Ocultar producto'}">
-                              ${isProdHidden ? '👁+' : '👁‍🗨'}
-                            </button>
-                          </div>
-                        ` : ''}
-                        <b>${p.name}</b> ${isProdHidden ? '<small style="color:red;">(oculto)</small>' : ''}
-                      </div>
-                    </td>
-                    <td style="text-align:center;"><b>${num(p.quantity)}</b></td>
-                    <td style="text-align:right;">${p.quantity > 0 ? money(p.total) : '$ -'}</td>
-                  </tr>
-                  `;
-                }).join('')}
-                <tr class="excel-total-row">
-                  <td><b>TOTAL SUBGRUPO ${sg.subgroup.toUpperCase()}</b></td>
-                  <td style="text-align:center;"><b>${num(sg.totalUnits)}</b></td>
-                  <td style="text-align:right;"><b>${money(sg.totalSalesValue)}</b></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
+    <div class="category-list-card ${isCatHidden ? 'dimmed-card' : ''} ${isCatCollapsed ? 'is-collapsed' : ''}" data-drag-cat="${cat.category}" style="${isCatHidden ? 'opacity:0.6; border:1px dashed #94a3b8;' : ''}">
+      <div class="category-list-header ${isEdit ? 'in-edit-mode' : ''}" data-toggle-cat-header="${cat.category}">
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${!isEdit ? `
+            <button type="button" class="collapse-toggle-btn" data-toggle-cat-btn="${cat.category}" title="${isCatCollapsed ? 'Desplegar categoría' : 'Plegar categoría'}" aria-expanded="${!isCatCollapsed}">
+              <svg class="chevron-icon category-chevron ${isCatCollapsed ? 'collapsed' : ''}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          ` : ''}
           ${isEdit ? `
-            <div style="display:flex; justify-content:flex-start; padding:2px 4px 6px 4px;">
-              <button type="button" class="add-products-subgroup-link" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
-                Adicionar productos a ${sg.subgroup}
+            <div class="category-order-controls">
+              <span class="drag-handle" data-drag-handle-cat="${cat.category}" title="Arrastre para mover esta categoría entera">⠿</span>
+              <button type="button" class="ctrl-btn" data-move-cat="up" data-cat="${cat.category}" ${catIdx === 0 ? 'disabled' : ''} title="Mover categoría arriba">▲</button>
+              <button type="button" class="ctrl-btn" data-move-cat="down" data-cat="${cat.category}" ${catIdx === breakdown.length - 1 ? 'disabled' : ''} title="Mover categoría abajo">▼</button>
+              <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-cat="${cat.category}" title="${isCatHidden ? 'Mostrar categoría' : 'Ocultar categoría'}">
+                ${isCatHidden ? '👁+' : '👁‍🗨'}
               </button>
             </div>
           ` : ''}
-
-          <!-- Bloque de Auditoría del Subgrupo -->
-          <div class="excel-audit-container">
-            <table class="excel-like-table">
-              <thead>
-                <tr class="audit-subgroup-header">
-                  <th>
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-                      <span>AUDITORÍA: INSUMOS (${sg.subgroup.toUpperCase()})</span>
-                      ${isEdit ? `<span style="font-size:10.5px; font-weight:normal; color:#0f766e; background:#e6fffa; padding:2px 6px; border-radius:4px;">Arrastrar o mover con ratón</span>` : ''}
-                    </div>
-                  </th>
-                  <th style="text-align:center; width:150px;">CANTIDAD INVENTARIO</th>
-                  <th style="text-align:center; width:140px;">CANTIDAD TIRILLA</th>
-                  <th style="text-align:center; width:130px;">DIFERENCIA</th>
-                </tr>
-              </thead>
-              <tbody class="audit-insumos-sortable-body" data-subkey="${subKey}">
-                ${subAuditList.length ? subAuditList.map((ia, insIdx) => {
-                  if (!ia || !ia.insumo) return '';
-                  const insId = ia.insumo.id;
-                  const isInsHidden = hiddenInsumosForSub.includes(insId);
-                  if (!isEdit && isInsHidden) return '';
-
-                  const insName = String(ia.insumo.name || 'INSUMO').toUpperCase();
-                  const unit = ia.insumo.unit ? ` (${ia.insumo.unit})` : '';
-                  const diff = Number(ia.difference || 0);
-                  const statusClass = diff === 0 ? 'status-ok' : diff > 0 ? 'status-diff-neg' : 'status-diff-pos';
-                  const diffText = diff === 0 ? '0 (OK)' : diff > 0 ? `+${num(diff)} (Faltante)` : `${num(diff)} (Sobrante)`;
-
-                  return `
-                    <tr class="subgroup-audit-item-row ${isEdit ? 'audit-row-edit-mode' : ''}" data-drag-audit-insumo="${insId}" style="${isInsHidden ? 'opacity:0.45; background:#f8fafc;' : ''}">
-                      <td>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                          ${isEdit ? `
-                            <div class="ctrl-group">
-                              <span class="drag-handle" title="Arrastre con el ratón para reordenar este insumo en la auditoría">⠿</span>
-                              <button type="button" class="ctrl-btn" data-move-sub-insumo="up" data-subkey="${subKey}" data-insumo="${insId}" ${insIdx === 0 ? 'disabled' : ''} title="Subir insumo en auditoría">▲</button>
-                              <button type="button" class="ctrl-btn" data-move-sub-insumo="down" data-subkey="${subKey}" data-insumo="${insId}" ${insIdx === subAuditList.length - 1 ? 'disabled' : ''} title="Bajar insumo en auditoría">▼</button>
-                              <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-sub-insumo="${insId}" data-subkey="${subKey}" title="${isInsHidden ? 'Mostrar este insumo en auditoría' : 'Ocultar este insumo de la auditoría'}">
-                                ${isInsHidden ? '👁+' : '👁‍🗨'}
-                              </button>
-                            </div>
-                          ` : ''}
-                          <div>
-                            <b>${insName}</b> <small style="color:var(--muted);">${unit}</small>
-                            ${isInsHidden ? '<br><small style="color:red; font-weight:700;">(Oculto en reporte)</small>' : ''}
-                          </div>
-                        </div>
-                      </td>
-                      <td style="text-align:center; font-size:13px;">
-                        <b>${num(ia.calculatedOut)}</b>
-                        <div style="font-size:10px; color:var(--muted); font-weight:normal;">Salida Físico</div>
-                      </td>
-                      <td style="text-align:center; font-size:13px;">
-                        <b>${num(ia.theoretical)}</b>
-                        <div style="font-size:10px; color:var(--muted); font-weight:normal;">Exigido Ventas</div>
-                      </td>
-                      <td style="text-align:center;">
-                        <span class="${statusClass}"><b>${diffText}</b></span>
-                      </td>
-                    </tr>
-                  `;
-                }).join('') : `<tr><td colspan="4" class="hint" style="text-align:center; padding:8px;">No hay insumos vinculados para auditar en este tamaño.</td></tr>`}
-              </tbody>
-            </table>
+          <div>
+            <h3 style="margin:0; font-size:15px; display:flex; align-items:center; gap:6px;">
+              <span>CATEGORÍA: ${cat.category.toUpperCase()}</span>
+              ${isCatHidden ? '<span class="badge badge-danger" style="font-size:10px;">Oculta</span>' : ''}
+            </h3>
+            <span class="hint" style="font-size:11px;">${subs.length} subgrupo${subs.length === 1 ? '' : 's'}</span>
           </div>
         </div>
-        `;
-      }).join('')}
+        <div style="text-align:right;">
+          <span class="badge badge-ok" style="font-size:11.5px;">Total: ${num(cat.totalUnits)} und.</span>
+          <div style="font-size:15px; font-weight:800; color:var(--brand-teal); margin-top:2px;">${money(cat.totalSalesValue)}</div>
+        </div>
       </div>
 
-      <div class="excel-category-total-banner">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:14px; font-weight:800;">GRAN TOTAL CATEGORÍA ${cat.category.toUpperCase()}</span>
-          <span style="font-size:16px; font-weight:800; color:var(--brand-accent);">${num(cat.totalUnits)} UND. | ${money(cat.totalSalesValue)}</span>
+      <div class="category-collapsible-body">
+        <div class="subgroups-container" data-cat-name="${cat.category}">
+        ${subs.map((sg, subIdx) => {
+          const isSubHidden = hiddenSubForCat.includes(sg.subgroup);
+          if (!isEdit && isSubHidden) return '';
+
+          const subKey = `${cat.category}::${sg.subgroup}`;
+          const isSubCollapsed = collapsedSubgroups.has(subKey);
+          const prodOrder = vs.productOrder?.[subKey] || [];
+          const hiddenInsumosForSub = hiddenSubgroupInsumos[subKey] || [];
+
+          let prods = [...(sg.products || [])];
+          if (prodOrder.length) {
+            const pMap = new Map(prodOrder.map((p, i) => [p, i]));
+            prods.sort((a, b) => (pMap.has(a.id || a.name) ? pMap.get(a.id || a.name) : 999) - (pMap.has(b.id || b.name) ? pMap.get(b.id || b.name) : 999));
+          }
+
+          // Subgroup insumos audit list (in edit mode show all raw so user can reorder or toggle)
+          const subAuditSource = isEdit ? (sg.allInsumosAudit || sg.insumosAudit || []) : (sg.insumosAudit || []);
+          let subAuditList = [...subAuditSource];
+          const subInsumoOrderList = vs.subgroupInsumoOrder?.[subKey];
+          if (subInsumoOrderList && subInsumoOrderList.length) {
+            const siaMap = new Map(subInsumoOrderList.map((id, i) => [id, i]));
+            subAuditList.sort((a, b) => (siaMap.has(a.insumo?.id) ? siaMap.get(a.insumo?.id) : 999) - (siaMap.has(b.insumo?.id) ? siaMap.get(b.insumo?.id) : 999));
+          }
+
+          return `
+          <div class="subgroup-card-block ${isSubCollapsed ? 'is-collapsed' : ''}" data-drag-sub="${sg.subgroup}" data-cat="${cat.category}" data-subkey="${subKey}" style="${isSubHidden ? 'opacity:0.55; border:1px dashed #cbd5e1;' : ''}">
+            <div class="subgroup-card-header-bar" data-toggle-sub-header="${subKey}">
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${!isEdit ? `
+                  <button type="button" class="subgroup-collapse-btn" data-toggle-sub-btn="${subKey}" title="${isSubCollapsed ? 'Desplegar subgrupo' : 'Plegar subgrupo'}" aria-expanded="${!isSubCollapsed}">
+                    <svg class="chevron-icon subgroup-chevron ${isSubCollapsed ? 'collapsed' : ''}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                ` : ''}
+                ${isEdit ? `
+                  <div class="ctrl-group">
+                    <span class="drag-handle" title="Arrastre para mover este subgrupo">⠿</span>
+                    <button type="button" class="ctrl-btn" data-move-sub="up" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === 0 ? 'disabled' : ''} title="Mover subgrupo arriba">▲</button>
+                    <button type="button" class="ctrl-btn" data-move-sub="down" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === subs.length - 1 ? 'disabled' : ''} title="Mover subgrupo abajo">▼</button>
+                    <button type="button" class="ctrl-btn" data-rename-sub data-cat="${cat.category}" data-sub="${sg.subgroup}" title="Cambiar o editar el nombre de este subgrupo">✏️</button>
+                    <button type="button" class="ctrl-btn" data-delete-sub data-cat="${cat.category}" data-sub="${sg.subgroup}" title="Eliminar este subgrupo y reasignar sus productos" style="color:#ef4444;">🗑️</button>
+                    <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-sub="${sg.subgroup}" data-cat="${cat.category}" title="${isSubHidden ? 'Mostrar subgrupo' : 'Ocultar subgrupo'}">
+                      ${isSubHidden ? '👁+' : '👁‍🗨'}
+                    </button>
+                  </div>
+                ` : ''}
+                <div>
+                  <b style="font-size:13px; color:var(--brand-dark);">${cat.category.toUpperCase()} › ${sg.subgroup.toUpperCase()}</b>
+                  ${isSubHidden ? '<small style="color:red; font-weight:700; margin-left:4px;">(Oculto)</small>' : ''}
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="subgroup-summary-pill">${num(sg.totalUnits)} und. &bull; ${money(sg.totalSalesValue)}</span>
+                ${isEdit ? `
+                  <button type="button" class="manage-subgroup-btn" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}" title="Editar o agregar qué productos van en este subgrupo">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+                    + Productos
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="subgroup-collapsible-body">
+              <div class="table-wrap subgroup-table-wrap">
+                <table class="excel-like-table table-products-subgroup">
+                  <thead>
+                    <tr class="excel-subgroup-title-row">
+                      <th class="th-prod-name">PRODUCTO VENDIDO</th>
+                      <th class="th-prod-qty">CANTIDAD</th>
+                      <th class="th-prod-val">VALOR ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="products-sortable-body" data-subkey="${subKey}">
+                    ${prods.length === 0 ? `
+                      <tr>
+                        <td colspan="3" style="text-align:center; padding:12px; font-size:12.5px; color:var(--muted); background:#fafafa;">
+                          Sin productos asignados a este subgrupo.
+                          ${isEdit ? `
+                            <button type="button" class="manage-subgroup-btn" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}" style="margin-left:8px;">
+                              + Seleccionar Productos
+                            </button>
+                          ` : ''}
+                        </td>
+                      </tr>
+                    ` : prods.map((p, prodIdx) => {
+                      const pKey = p.id || p.name;
+                      const isProdHidden = hiddenProducts.includes(pKey);
+                      if (!isEdit && isProdHidden) return '';
+
+                      return `
+                      <tr class="${p.quantity > 0 ? 'sold-row' : 'zero-row'}" data-drag-prod="${pKey}" style="${isProdHidden ? 'opacity:0.5;' : ''}">
+                        <td class="td-prod-name">
+                          <div class="prod-item-cell">
+                            ${isEdit ? `
+                              <div class="ctrl-group">
+                                <span class="drag-handle" title="Arrastre con el ratón para poner este producto donde quiera">⠿</span>
+                                <button type="button" class="ctrl-btn" data-move-prod="up" data-cat="${cat.category}" data-sub="${sg.subgroup}" data-prod="${pKey}" ${prodIdx === 0 ? 'disabled' : ''} title="Subir producto">▲</button>
+                                <button type="button" class="ctrl-btn" data-move-prod="down" data-cat="${cat.category}" data-sub="${sg.subgroup}" data-prod="${pKey}" ${prodIdx === prods.length - 1 ? 'disabled' : ''} title="Bajar producto">▼</button>
+                                <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-prod="${pKey}" title="${isProdHidden ? 'Mostrar producto' : 'Ocultar producto'}">
+                                  ${isProdHidden ? '👁+' : '👁‍🗨'}
+                                </button>
+                              </div>
+                            ` : ''}
+                            <span class="prod-name-label"><b>${p.name}</b></span> ${isProdHidden ? '<small style="color:red; margin-left:4px;">(oculto)</small>' : ''}
+                          </div>
+                        </td>
+                        <td class="td-prod-qty"><b>${num(p.quantity)}</b></td>
+                        <td class="td-prod-val">${p.quantity > 0 ? money(p.total) : '$ -'}</td>
+                      </tr>
+                      `;
+                    }).join('')}
+                    <tr class="excel-total-row">
+                      <td class="td-prod-name"><b>TOTAL SUBGRUPO ${sg.subgroup.toUpperCase()}</b></td>
+                      <td class="td-prod-qty"><b>${num(sg.totalUnits)}</b></td>
+                      <td class="td-prod-val"><b>${money(sg.totalSalesValue)}</b></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              ${isEdit ? `
+                <div style="display:flex; justify-content:flex-start; padding:4px 4px 8px 4px;">
+                  <button type="button" class="add-products-subgroup-link" data-open-subgroup-modal data-cat="${cat.category}" data-sub="${sg.subgroup}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+                    Adicionar productos a ${sg.subgroup}
+                  </button>
+                </div>
+              ` : ''}
+
+              <!-- Bloque de Auditoría del Subgrupo -->
+              <div class="excel-audit-container">
+                <div class="audit-subgroup-bar">
+                  <div class="audit-bar-inner">
+                    <span class="audit-bar-title">AUDITORÍA: INSUMOS (${sg.subgroup.toUpperCase()})</span>
+                    ${isEdit ? `<span class="audit-edit-hint">Arrastrar o mover con ratón</span>` : ''}
+                  </div>
+                </div>
+                <div class="audit-table-wrap">
+                  <table class="excel-like-table table-audit-subgroup">
+                    <thead>
+                      <tr class="audit-subgroup-header">
+                        <th class="th-insumo-name">INSUMO</th>
+                        <th class="th-insumo-inv">FÍSICO<span class="th-sublabel"> (INV.)</span></th>
+                        <th class="th-insumo-tirilla">TIRILLA<span class="th-sublabel"> (VTAS)</span></th>
+                        <th class="th-insumo-diff">DIFERENCIA</th>
+                      </tr>
+                    </thead>
+                    <tbody class="audit-insumos-sortable-body" data-subkey="${subKey}">
+                      ${subAuditList.length ? subAuditList.map((ia, insIdx) => {
+                        if (!ia || !ia.insumo) return '';
+                        const insId = ia.insumo.id;
+                        const isInsHidden = hiddenInsumosForSub.includes(insId);
+                        if (!isEdit && isInsHidden) return '';
+
+                        const insName = String(ia.insumo.name || 'INSUMO').toUpperCase();
+                        const unit = ia.insumo.unit ? ` (${ia.insumo.unit})` : '';
+                        const diff = Number(ia.difference || 0);
+                        const statusClass = diff === 0 ? 'status-ok' : diff > 0 ? 'status-diff-neg' : 'status-diff-pos';
+                        const diffText = diff === 0 ? '0 (OK)' : diff > 0 ? `+${num(diff)} (Falt.)` : `${num(diff)} (Sobr.)`;
+
+                        return `
+                          <tr class="subgroup-audit-item-row ${isEdit ? 'audit-row-edit-mode' : ''}" data-drag-audit-insumo="${insId}" style="${isInsHidden ? 'opacity:0.45; background:#f8fafc;' : ''}">
+                            <td class="td-insumo-name">
+                              <div class="insumo-item-cell">
+                                ${isEdit ? `
+                                  <div class="ctrl-group">
+                                    <span class="drag-handle" title="Arrastre con el ratón para reordenar este insumo en la auditoría">⠿</span>
+                                    <button type="button" class="ctrl-btn" data-move-sub-insumo="up" data-subkey="${subKey}" data-insumo="${insId}" ${insIdx === 0 ? 'disabled' : ''} title="Subir insumo en auditoría">▲</button>
+                                    <button type="button" class="ctrl-btn" data-move-sub-insumo="down" data-subkey="${subKey}" data-insumo="${insId}" ${insIdx === subAuditList.length - 1 ? 'disabled' : ''} title="Bajar insumo en auditoría">▼</button>
+                                    <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-sub-insumo="${insId}" data-subkey="${subKey}" title="${isInsHidden ? 'Mostrar este insumo en auditoría' : 'Ocultar este insumo de la auditoría'}">
+                                      ${isInsHidden ? '👁+' : '👁‍🗨'}
+                                    </button>
+                                  </div>
+                                ` : ''}
+                                <div class="insumo-title-group">
+                                  <b class="insumo-name-text">${insName}</b> <small class="insumo-unit-text">${unit}</small>
+                                  ${isInsHidden ? '<small style="color:red; font-weight:700; display:block;">(Oculto)</small>' : ''}
+                                </div>
+                              </div>
+                            </td>
+                            <td class="td-insumo-inv">
+                              <b>${num(ia.calculatedOut)}</b>
+                              <span class="sub-label-desktop">Salida Físico</span>
+                            </td>
+                            <td class="td-insumo-tirilla">
+                              <b>${num(ia.theoretical)}</b>
+                              <span class="sub-label-desktop">Exigido Ventas</span>
+                            </td>
+                            <td class="td-insumo-diff">
+                              <span class="${statusClass}"><b>${diffText}</b></span>
+                            </td>
+                          </tr>
+                        `;
+                      }).join('') : `<tr><td colspan="4" class="hint" style="text-align:center; padding:8px;">No hay insumos vinculados para auditar en este tamaño.</td></tr>`}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          `;
+        }).join('')}
+        </div>
+
+        <div class="excel-category-total-banner">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:14px; font-weight:800;">GRAN TOTAL CATEGORÍA ${cat.category.toUpperCase()}</span>
+            <span style="font-size:16px; font-weight:800; color:var(--brand-accent);">${num(cat.totalUnits)} UND. | ${money(cat.totalSalesValue)}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -609,10 +777,12 @@ function renderCategoryBreakdown() {
 
     // Button controls: Category Move
     box.querySelectorAll('[data-move-cat]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const catName = btn.dataset.cat;
         const dir = btn.dataset.moveCat;
-        const allCats = breakdown.map(c => c.category);
+        const catCards = Array.from(box.querySelectorAll('.category-list-card'));
+        const allCats = catCards.map(c => c.dataset.dragCat).filter(Boolean);
         const idx = allCats.indexOf(catName);
         if (idx === -1) return;
         const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
@@ -626,7 +796,8 @@ function renderCategoryBreakdown() {
 
     // Category Toggle Hide
     box.querySelectorAll('[data-toggle-hide-cat]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const catName = btn.dataset.toggleHideCat;
         let list = [...hiddenCategories];
         if (list.includes(catName)) list = list.filter(c => c !== catName);
@@ -637,28 +808,51 @@ function renderCategoryBreakdown() {
 
     // Subgroup Move
     box.querySelectorAll('[data-move-sub]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const catName = btn.dataset.cat;
         const subName = btn.dataset.sub;
         const dir = btn.dataset.moveSub;
-        const catObj = breakdown.find(c => c.category === catName);
-        if (!catObj) return;
-        const subs = (catObj.subgroups || []).map(s => s.subgroup);
-        const idx = subs.indexOf(subName);
+        const subContainer = btn.closest('.subgroups-container');
+        if (!subContainer) return;
+        const blocks = Array.from(subContainer.querySelectorAll('.subgroup-card-block'));
+        const currentSubs = blocks.map(b => b.dataset.dragSub).filter(Boolean);
+        const idx = currentSubs.indexOf(subName);
         if (idx === -1) return;
         const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
-        if (swapIdx < 0 || swapIdx >= subs.length) return;
-        const temp = subs[idx];
-        subs[idx] = subs[swapIdx];
-        subs[swapIdx] = temp;
-        const subOrder = Object.assign({}, vs.subgroupOrder || {}, { [catName]: subs });
+        if (swapIdx < 0 || swapIdx >= currentSubs.length) return;
+        const temp = currentSubs[idx];
+        currentSubs[idx] = currentSubs[swapIdx];
+        currentSubs[swapIdx] = temp;
+        const subOrder = Object.assign({}, vs.subgroupOrder || {}, { [catName]: currentSubs });
         saveViewSettings({ subgroupOrder: subOrder });
+      };
+    });
+
+    // Subgroup Rename
+    box.querySelectorAll('[data-rename-sub]').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const catName = btn.dataset.cat;
+        const subName = btn.dataset.sub;
+        promptRenameSubgroup(catName, subName);
+      };
+    });
+
+    // Subgroup Delete
+    box.querySelectorAll('[data-delete-sub]').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const catName = btn.dataset.cat;
+        const subName = btn.dataset.sub;
+        promptDeleteSubgroup(catName, subName);
       };
     });
 
     // Subgroup Toggle Hide
     box.querySelectorAll('[data-toggle-hide-sub]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const catName = btn.dataset.cat;
         const subName = btn.dataset.toggleHideSub;
         const currentSubs = hiddenSubgroups[catName] || [];
@@ -672,31 +866,33 @@ function renderCategoryBreakdown() {
 
     // Product Move
     box.querySelectorAll('[data-move-prod]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const catName = btn.dataset.cat;
         const subName = btn.dataset.sub;
         const prodKey = btn.dataset.prod;
         const dir = btn.dataset.moveProd;
         const key = `${catName}::${subName}`;
-        const catObj = breakdown.find(c => c.category === catName);
-        const subObj = catObj?.subgroups?.find(s => s.subgroup === subName);
-        if (!subObj) return;
-        const prods = (subObj.products || []).map(p => p.id || p.name);
-        const idx = prods.indexOf(prodKey);
+        const tbody = btn.closest('tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr[data-drag-prod]'));
+        const currentList = rows.map(r => r.dataset.dragProd).filter(Boolean);
+        const idx = currentList.indexOf(prodKey);
         if (idx === -1) return;
         const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
-        if (swapIdx < 0 || swapIdx >= prods.length) return;
-        const temp = prods[idx];
-        prods[idx] = prods[swapIdx];
-        prods[swapIdx] = temp;
-        const pOrder = Object.assign({}, vs.productOrder || {}, { [key]: prods });
+        if (swapIdx < 0 || swapIdx >= currentList.length) return;
+        const temp = currentList[idx];
+        currentList[idx] = currentList[swapIdx];
+        currentList[swapIdx] = temp;
+        const pOrder = Object.assign({}, vs.productOrder || {}, { [key]: currentList });
         saveViewSettings({ productOrder: pOrder });
       };
     });
 
     // Product Toggle Hide
     box.querySelectorAll('[data-toggle-hide-prod]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const prodKey = btn.dataset.toggleHideProd;
         let list = [...hiddenProducts];
         if (list.includes(prodKey)) list = list.filter(p => p !== prodKey);
@@ -707,14 +903,15 @@ function renderCategoryBreakdown() {
 
     // Subgroup Insumo Audit Move
     box.querySelectorAll('[data-move-sub-insumo]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const subKey = btn.dataset.subkey;
         const insId = btn.dataset.insumo;
         const dir = btn.dataset.moveSubInsumo;
-        const currentList = vs.subgroupInsumoOrder?.[subKey] || [];
-        // Gather all current insumo IDs in this subkey
-        const tbody = box.querySelector(`.audit-insumos-sortable-body[data-subkey="${subKey}"]`);
-        const allIds = Array.from(tbody.querySelectorAll('tr[data-drag-audit-insumo]')).map(r => r.dataset.dragAuditInsumo);
+        const tbody = btn.closest('tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr[data-drag-audit-insumo]'));
+        const allIds = rows.map(r => r.dataset.dragAuditInsumo).filter(Boolean);
         const idx = allIds.indexOf(insId);
         if (idx === -1) return;
         const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
@@ -729,7 +926,8 @@ function renderCategoryBreakdown() {
 
     // Subgroup Insumo Audit Toggle Hide
     box.querySelectorAll('[data-toggle-hide-sub-insumo]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const subKey = btn.dataset.subkey;
         const insId = btn.dataset.toggleHideSubInsumo;
         const currentList = hiddenSubgroupInsumos[subKey] || [];
@@ -749,6 +947,41 @@ function renderCategoryBreakdown() {
       openSubgroupProductsModal(btn.dataset.cat, btn.dataset.sub);
     };
   });
+
+  // Category and Subgroup Collapse Listeners
+  box.querySelectorAll('[data-toggle-cat-header]').forEach(header => {
+    header.addEventListener('click', (e) => {
+      if (e.target.closest('.ctrl-btn, .drag-handle, .manage-subgroup-btn, .collapse-toggle-btn, a, input, select')) return;
+      const cat = header.dataset.toggleCatHeader;
+      toggleCategoryCollapse(cat);
+    });
+  });
+
+  box.querySelectorAll('[data-toggle-cat-btn]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cat = btn.dataset.toggleCatBtn;
+      toggleCategoryCollapse(cat);
+    });
+  });
+
+  box.querySelectorAll('[data-toggle-sub-header]').forEach(header => {
+    header.addEventListener('click', (e) => {
+      if (e.target.closest('.ctrl-btn, .drag-handle, .manage-subgroup-btn, .subgroup-collapse-btn, a, input, select')) return;
+      const subKey = header.dataset.toggleSubHeader;
+      toggleSubgroupCollapse(subKey);
+    });
+  });
+
+  box.querySelectorAll('[data-toggle-sub-btn]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const subKey = btn.dataset.toggleSubBtn;
+      toggleSubgroupCollapse(subKey);
+    });
+  });
+
+  updateGlobalCollapseButtonLabel();
 }
 
 let currentSubgroupModalTarget = { category: '', subgroup: '' };
@@ -811,8 +1044,8 @@ function renderSubgroupModalContent(searchTerm = '') {
             <span style="font-size:12px; color:var(--muted); margin-left:8px;">${money(p.price)}</span>
             ${p.recipe && p.recipe.length > 0 ? `<span class="badge badge-info" style="font-size:10.5px; margin-left:6px;">${p.recipe.length} insumos</span>` : ''}
           </div>
-          <button type="button" class="btn danger-sm remove-sub-prod-btn" data-id="${p.id}" data-name="${p.name}" style="padding:3px 8px; font-size:11.5px;">
-            ✕ Quitar de este subgrupo
+          <button type="button" class="btn danger-sm remove-sub-prod-btn" data-id="${p.id}" data-name="${p.name}" style="padding:4px 10px; font-size:12px;" title="Quitar de este subgrupo">
+            ✕ Quitar
           </button>
         </div>
       `).join('');
@@ -870,8 +1103,8 @@ function renderSubgroupModalContent(searchTerm = '') {
             <span style="font-size:11px; color:var(--muted); margin-left:6px;">(${p.category || 'General'} › ${p.subgroup || 'Sin tamaño'})</span>
             <span style="font-size:12px; color:#0f766e; margin-left:8px; font-weight:600;">${money(p.price)}</span>
           </div>
-          <button type="button" class="btn secondary add-sub-prod-btn" data-id="${p.id || ''}" data-name="${p.name}" style="padding:3px 8px; font-size:11.5px;">
-            + Agregar a ${subgroup}
+          <button type="button" class="btn secondary add-sub-prod-btn" data-id="${p.id || ''}" data-name="${p.name}" style="padding:4px 10px; font-size:12px;" title="Agregar a ${subgroup}">
+            + Agregar
           </button>
         </div>
       `).join('');
@@ -960,6 +1193,149 @@ async function saveSubgroupNewProduct(name, price) {
   }
 }
 
+function showActionDialog({ title, message, inputLabel, inputValue, confirmText = 'Confirmar', isDanger = false }) {
+  return new Promise((resolve) => {
+    const modal = $('#actionPromptModal');
+    const titleEl = $('#actionPromptTitle');
+    const msgEl = $('#actionPromptMessage');
+    const inputWrap = $('#actionPromptInputWrap');
+    const inputEl = $('#actionPromptInput');
+    const inputLabelEl = $('#actionPromptInputLabel');
+    const cancelBtn = $('#cancelActionPromptBtn');
+    const confirmBtn = $('#confirmActionPromptBtn');
+    const closeBtn = $('#closeActionPromptBtn');
+
+    if (!modal) {
+      resolve(null);
+      return;
+    }
+
+    titleEl.textContent = title;
+    msgEl.innerHTML = message;
+
+    if (inputValue !== undefined) {
+      inputWrap.classList.remove('hidden');
+      inputLabelEl.textContent = inputLabel || '';
+      inputEl.value = inputValue;
+    } else {
+      inputWrap.classList.add('hidden');
+      inputEl.value = '';
+    }
+
+    confirmBtn.textContent = confirmText;
+    if (isDanger) {
+      confirmBtn.className = 'btn danger';
+    } else {
+      confirmBtn.className = 'btn primary';
+    }
+
+    modal.classList.remove('hidden');
+    if (inputValue !== undefined) {
+      setTimeout(() => {
+        inputEl.focus();
+        inputEl.select();
+      }, 50);
+    }
+
+    function cleanup(result) {
+      modal.classList.add('hidden');
+      confirmBtn.onclick = null;
+      cancelBtn.onclick = null;
+      closeBtn.onclick = null;
+      inputEl.onkeydown = null;
+      resolve(result);
+    }
+
+    confirmBtn.onclick = () => {
+      if (inputValue !== undefined) {
+        cleanup(inputEl.value.trim());
+      } else {
+        cleanup(true);
+      }
+    };
+
+    inputEl.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmBtn.click();
+      } else if (e.key === 'Escape') {
+        cleanup(null);
+      }
+    };
+
+    cancelBtn.onclick = () => cleanup(null);
+    closeBtn.onclick = () => cleanup(null);
+  });
+}
+
+async function promptRenameSubgroup(category, oldSubgroup) {
+  if (!category || !oldSubgroup) return;
+  const newName = await showActionDialog({
+    title: 'Renombrar Subgrupo',
+    message: `Categoría: <b>${category}</b><br>Modifique el nombre del subgrupo para todos sus productos:`,
+    inputLabel: 'Nuevo nombre del subgrupo:',
+    inputValue: oldSubgroup,
+    confirmText: 'Guardar Nombre'
+  });
+
+  if (!newName || newName.toLowerCase() === oldSubgroup.toLowerCase()) return;
+
+  try {
+    const date = $('#date').value || today();
+    const res = await api(`/api/subgroups/rename?date=${date}`, 'POST', {
+      category,
+      oldSubgroup,
+      newSubgroup: newName
+    });
+    if (res.products) state.db.products = res.products;
+    if (res.report) state.report = res.report;
+    if (res.settings) state.db.settings = res.settings;
+    render();
+    if (!$('#subgroupProductsModal')?.classList.contains('hidden')) {
+      openSubgroupProductsModal(category, newName);
+    }
+    toast(`Subgrupo cambiado a "${newName}" (${res.count || 0} productos actualizados)`);
+  } catch (err) {
+    toast('Error al renombrar subgrupo: ' + err.message);
+  }
+}
+
+async function promptDeleteSubgroup(category, subgroup) {
+  if (!category || !subgroup) return;
+  const currentProds = (state.db?.products || []).filter(p =>
+    (p.category || '').toLowerCase() === category.toLowerCase() &&
+    (p.subgroup || '').toLowerCase() === subgroup.toLowerCase()
+  );
+
+  const confirmed = await showActionDialog({
+    title: 'Eliminar Subgrupo',
+    message: currentProds.length > 0
+      ? `¿Está seguro de eliminar el subgrupo <b>"${subgroup}"</b> de la categoría <b>${category}</b>?<br><br><span style="color:#d97706; font-size:12.5px;">⚠️ Los <b>${currentProds.length} productos</b> asignados pasarán automáticamente al subgrupo "Especiales / Otros" para conservar sus ventas e historial.</span>`
+      : `¿Está seguro de eliminar el subgrupo <b>"${subgroup}"</b>?`,
+    confirmText: 'Eliminar Subgrupo',
+    isDanger: true
+  });
+
+  if (!confirmed) return;
+
+  try {
+    const date = $('#date').value || today();
+    const res = await api(`/api/subgroups/delete?date=${date}`, 'POST', {
+      category,
+      subgroup,
+      targetSubgroup: 'Especiales / Otros'
+    });
+    if (res.products) state.db.products = res.products;
+    if (res.report) state.report = res.report;
+    if (res.settings) state.db.settings = res.settings;
+    render();
+    closeSubgroupProductsModal();
+    toast(`Subgrupo "${subgroup}" eliminado`);
+  } catch (err) {
+    toast('Error al eliminar subgrupo: ' + err.message);
+  }
+}
+
 function initSubgroupProductsModal() {
   const modal = $('#subgroupProductsModal');
   if (!modal) return;
@@ -967,9 +1343,16 @@ function initSubgroupProductsModal() {
   $('#closeSubgroupModalBtn')?.addEventListener('click', closeSubgroupProductsModal);
   $('#doneSubgroupModalBtn')?.addEventListener('click', closeSubgroupProductsModal);
 
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeSubgroupProductsModal();
+  $('#modalRenameSubgroupBtn')?.addEventListener('click', () => {
+    promptRenameSubgroup(currentSubgroupModalTarget.category, currentSubgroupModalTarget.subgroup);
   });
+
+  $('#modalDeleteSubgroupBtn')?.addEventListener('click', () => {
+    promptDeleteSubgroup(currentSubgroupModalTarget.category, currentSubgroupModalTarget.subgroup);
+  });
+
+  // Backdrop click disabled so clicking outside does not accidentally close the modal
+
 
   const searchInput = $('#modalProductSearchInput');
   const clearBtn = $('#clearModalSearchBtn');
@@ -1342,18 +1725,21 @@ function renderCatalogLists() {
       <input id="insumoSearch" list="insumoOptions" placeholder="Buscar insumo para editar...">
       <datalist id="insumoOptions">${visibleInsumos.map(i => `<option value="${i.name}"></option>`).join('')}</datalist>
       <button type="button" id="openInsumoEdit" class="btn outline">Editar Insumo</button>
-    </div>` + visibleInsumos.map(i => `
-      <div class="row" data-insumo-row="${i.id}">
-        <span><b>${i.name}</b> <small>(${i.unit})</small></span>
-        <div class="row-actions">
-          <b>${money(i.price)}</b>
-          <button class="edit-btn" data-edit-insumo="${i.id}">Editar</button>
+    </div>
+    <div class="catalog-items-scroll">
+      ${visibleInsumos.map(i => `
+        <div class="row" data-insumo-row="${i.id}">
+          <span class="catalog-item-name"><b>${i.name}</b> <small>(${i.unit})</small></span>
+          <div class="row-actions">
+            <b class="catalog-item-price">${money(i.price)}</b>
+            <button class="edit-btn" data-edit-insumo="${i.id}">Editar</button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('')}
+    </div>`;
 
     document.querySelectorAll('[data-edit-insumo]').forEach(b => {
-      b.onclick = () => { state.editing = { kind: 'insumo', id: b.dataset.editInsumo }; renderCatalogEditor(); };
+      b.onclick = () => openCatalogEditorModal('insumo', b.dataset.editInsumo);
     });
 
     const openEditBtn = $('#openInsumoEdit');
@@ -1361,26 +1747,31 @@ function renderCatalogLists() {
       openEditBtn.onclick = () => {
         const target = visibleInsumos.find(i => i.name.toLowerCase() === $('#insumoSearch').value.trim().toLowerCase());
         if (!target) return toast('Selecciona un insumo válido de la lista');
-        state.editing = { kind: 'insumo', id: target.id };
-        renderCatalogEditor();
+        openCatalogEditorModal('insumo', target.id);
       };
     }
   }
 
   const productsList = $('#productsList');
   if (productsList) {
-    productsList.innerHTML = db.products.map(p => `
-      <div class="row">
-        <span><b>${p.name}</b> <span class="badge badge-info" style="margin-left: 6px;">${p.category || 'Hamburguesas'}</span><br><small>${p.recipe.map(r => `${db.insumos.find(i => i.id === r.insumoId)?.name || '?'} × ${r.quantity}`).join(' + ') || 'Sin insumos'}</small></span>
-        <div class="row-actions">
-          <b>${money(p.price)}</b>
-          <button class="edit-btn" data-edit-product="${p.id}">Editar Receta</button>
-        </div>
-      </div>
-    `).join('');
+    productsList.innerHTML = `
+      <div class="catalog-items-scroll">
+        ${db.products.map(p => `
+          <div class="row">
+            <span class="catalog-item-name">
+              <b>${p.name}</b> <span class="badge badge-info" style="margin-left: 6px;">${p.category || 'Hamburguesas'}</span>
+              <br><small>${p.recipe.map(r => `${db.insumos.find(i => i.id === r.insumoId)?.name || '?'} × ${r.quantity}`).join(' + ') || 'Sin insumos'}</small>
+            </span>
+            <div class="row-actions">
+              <b class="catalog-item-price">${money(p.price)}</b>
+              <button class="edit-btn" data-edit-product="${p.id}">Editar Receta</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
 
     document.querySelectorAll('[data-edit-product]').forEach(b => {
-      b.onclick = () => { state.editing = { kind: 'product', id: b.dataset.editProduct }; renderCatalogEditor(); };
+      b.onclick = () => openCatalogEditorModal('product', b.dataset.editProduct);
     });
   }
 
@@ -1393,11 +1784,11 @@ function renderRecipeLines() {
   const old = [...box.querySelectorAll('.recipe-line')].map(x => ({ id: x.querySelector('select')?.value, q: x.querySelector('input')?.value || 1 }));
   const rows = old.length ? old : [{ id: state.db.insumos[0]?.id, q: 1 }];
   box.innerHTML = rows.map(r => `
-    <span class="recipe-line">
+    <div class="recipe-line">
       <select>${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.id}" ${i.id === r.id ? 'selected' : ''}>${i.name}</option>`).join('')}</select>
       <input type="number" min="0.01" step="0.01" value="${r.q}">
       <button type="button" class="removeIngredient">×</button>
-    </span>
+    </div>
   `).join('');
 
   box.querySelectorAll('.removeIngredient').forEach(b => {
@@ -1408,192 +1799,278 @@ function renderRecipeLines() {
   });
 }
 
+function openCatalogEditorModal(kind, id) {
+  state.editing = { kind, id };
+  renderCatalogEditor();
+}
+
+function closeCatalogEditorModal() {
+  state.editing = null;
+  const modal = $('#catalogEditorModal');
+  if (modal) modal.classList.add('hidden');
+  const box = $('#catalogModalBox');
+  if (box) box.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+function initCatalogEditorModal() {
+  const modal = $('#catalogEditorModal');
+  if (!modal || modal.dataset.bound) return;
+  modal.dataset.bound = 'true';
+  // Backdrop click disabled so clicking outside does not accidentally close the modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeCatalogEditorModal();
+    }
+  });
+}
+
 function renderCatalogEditor() {
-  const box = $('#catalogEditor');
-  if (!box) return;
-  if (!state.editing) { box.innerHTML = ''; return; }
+  const modal = $('#catalogEditorModal');
+  const box = $('#catalogModalBox');
+  if (!modal || !box) return;
+  if (!state.editing) {
+    modal.classList.add('hidden');
+    box.innerHTML = '';
+    document.body.style.overflow = '';
+    return;
+  }
   
   const entity = (state.editing.kind === 'insumo' ? state.db.insumos : state.db.products).find(x => x.id === state.editing.id);
-  if (!entity) { state.editing = null; box.innerHTML = ''; return; }
+  if (!entity) {
+    closeCatalogEditorModal();
+    return;
+  }
+
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
   
   if (state.editing.kind === 'insumo') {
     const usingProducts = state.db.products.filter(p => p.recipe.some(r => r.insumoId === entity.id));
     
     box.innerHTML = `
-      <div class="modal-backdrop" role="dialog" aria-modal="true" style="z-index: 10000;">
-        <div class="modal-box" style="max-width:550px;">
-          <div class="modal-header">
-            <div>
-              <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Insumo</h3>
-              <p style="margin:3px 0 0 0; font-size:12px; color:var(--muted);">${entity.name}</p>
-            </div>
-            <button type="button" id="cancelEdit" class="modal-close-btn" title="Cerrar modal">&times;</button>
+      <div class="modal-header">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <h3 id="catalogModalTitle" style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Insumo: ${entity.name}</h3>
+            <span class="badge badge-teal">Insumo</span>
           </div>
-          <div class="modal-body">
-            <form id="editInsumoForm" class="form inline-insumo" style="display:flex; flex-direction:column; gap:12px;">
-              <div style="display:flex; gap:10px;">
-                <label style="flex:2;">
-                  <span>Nombre del Insumo</span>
-                  <input name="name" list="editInsumoOptions" value="${entity.name}" required>
-                  <datalist id="editInsumoOptions">${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}</datalist>
-                </label>
-                <label style="flex:1;">
-                  <span>Unidad</span>
-                  <input name="unit" value="${entity.unit}" required>
-                </label>
-                <label style="flex:1;">
-                  <span>Costo COP</span>
-                  <input name="price" type="number" min="0" value="${entity.price}" required>
-                </label>
+          <p class="hint" style="margin:3px 0 0 0; font-size:12px;">Modifica el costo, unidad y qué productos descuentan este insumo del inventario.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeCatalogModalBtn" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <form id="editInsumoForm" class="form inline-insumo" style="display:flex; flex-direction:column; flex:1; min-height:0; margin:0;">
+        <div class="modal-body">
+          <div class="catalog-inputs-row-responsive">
+            <label>
+              <span>Nombre del Insumo</span>
+              <input name="name" list="editInsumoOptions" value="${entity.name}" required>
+              <datalist id="editInsumoOptions">${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}</datalist>
+            </label>
+            <label>
+              <span>Unidad de Medida</span>
+              <input name="unit" value="${entity.unit}" required>
+            </label>
+            <label>
+              <span>Costo COP ($)</span>
+              <input name="price" type="number" min="0" value="${entity.price}" required>
+            </label>
+          </div>
+          
+          <div class="catalog-editor-stack">
+            <!-- Recuadro 1 (Arriba): Recetas que usan este insumo - crece verticalmente -->
+            <div class="catalog-editor-section-box">
+              <div class="section-header">
+                <h4>
+                  <span>📋 Recetas y Productos que usan este insumo</span>
+                  <span class="badge badge-info" id="usingProductsCount">${usingProducts.length} recetas</span>
+                </h4>
+                <span class="section-desc">Indica la cantidad que se descuenta del inventario por cada unidad vendida de estos productos</span>
               </div>
               
-              <div class="modal-section-title" style="margin-top:16px;">
-                <span>Recetas que usan este insumo</span>
-              </div>
-              <div class="recipe-wide" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:4px;">
-                <div id="insumoRecipesList" style="display:flex; flex-direction:column; gap:4px; max-height:180px; overflow-y:auto; margin-bottom:12px;">
-                  ${usingProducts.map(p => {
-                    const r = p.recipe.find(x => x.insumoId === entity.id);
-                    return `
-                      <div class="insumo-recipe-line" data-pid="${p.id}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-                        <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</span>
-                        <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
-                          <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
-                          <button type="button" class="btn danger-sm remove-insumo-from-recipe" style="padding:4px 8px; font-size:12px;">Quitar</button>
-                        </div>
+              <div id="insumoRecipesList" class="editor-items-container">
+                ${usingProducts.length ? usingProducts.map(p => {
+                  const r = p.recipe.find(x => x.insumoId === entity.id);
+                  return `
+                    <div class="insumo-recipe-line editor-item-row" data-pid="${p.id}">
+                      <div class="item-title">
+                        <b>${p.name}</b>
+                        <small style="color:var(--muted); margin-left:6px;">(${p.category || 'Producto'})</small>
                       </div>
-                    `;
-                  }).join('')}
-                </div>
-                
-                <div style="border-top:1px solid #cbd5e1; padding-top:12px;">
-                  <div style="font-size:12px; font-weight:600; color:var(--brand-teal); margin-bottom:6px;">Buscar y añadir a receta:</div>
-                  <input type="text" id="productSearchInput" placeholder="Escribe el nombre del producto..." autocomplete="off" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; margin-bottom:8px;">
-                  <div id="availableProductsList" style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
-                </div>
+                      <div class="recipe-line-controls item-ctrls">
+                        <span style="font-size:12px; font-weight:600; color:#475569;">Descuenta:</span>
+                        <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:80px; text-align:center;">
+                        <span style="font-size:12px; color:var(--muted);">${entity.unit}</span>
+                        <button type="button" class="btn danger-sm remove-insumo-from-recipe">Quitar</button>
+                      </div>
+                    </div>
+                  `;
+                }).join('') : '<p class="hint" style="text-align:center; padding:16px;">Ningún producto tiene vinculado este insumo todavía. Usa el buscador de abajo para agregarlo.</p>'}
               </div>
-              <div class="modal-footer" style="margin-top:20px; padding:0; border:none; display:flex; justify-content:space-between;">
-                <button type="button" id="deleteEdit" class="btn danger-sm" style="flex:1; margin-right:10px;">Eliminar Insumo</button>
-                <button type="submit" class="btn primary" style="flex:2;">Guardar Insumo y Recetas</button>
+            </div>
+
+            <!-- Recuadro 2 (Abajo): Buscar y añadir a receta - ancho completo -->
+            <div class="catalog-editor-section-box">
+              <div class="section-header">
+                <h4>
+                  <span>🔍 Buscar y añadir a producto o receta</span>
+                </h4>
+                <span class="section-desc">Escribe el nombre del producto para agregarlo a la lista superior</span>
               </div>
-            </form>
+              <input type="text" id="productSearchInput" placeholder="Escribe el nombre del producto..." autocomplete="off" style="width:100%; padding:9px 12px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:13.5px; margin-bottom:8px; box-sizing:border-box;">
+              <div id="availableProductsList" class="editor-search-results"></div>
+            </div>
           </div>
         </div>
-      </div>
+
+        <div class="modal-footer modal-footer-horizontal">
+          <button type="submit" class="btn primary btn-modal-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Guardar
+          </button>
+          <button type="button" id="cancelEditBtn" class="btn outline btn-modal-action">Cancelar</button>
+          <button type="button" id="deleteEdit" class="btn danger-sm btn-modal-action">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Eliminar
+          </button>
+        </div>
+      </form>
     `;
     $('#editInsumoForm').onsubmit = saveEditedInsumo;
     bindEditInsumoProducts();
   } else {
     box.innerHTML = `
-      <div class="modal-backdrop" role="dialog" aria-modal="true" style="z-index: 10000;">
-        <div class="modal-box" style="max-width:550px;">
-          <div class="modal-header">
-            <div>
-              <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Producto y Receta</h3>
-              <p style="margin:3px 0 0 0; font-size:12px; color:var(--muted);">${entity.name}</p>
-            </div>
-            <button type="button" id="cancelEdit" class="modal-close-btn" title="Cerrar modal">&times;</button>
+      <div class="modal-header">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <h3 id="catalogModalTitle" style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Producto y Receta: ${entity.name}</h3>
+            <span class="badge badge-teal">Producto</span>
           </div>
-          <div class="modal-body">
-            <datalist id="allInsumosList">
-              ${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}
-            </datalist>
-            <form id="editProductForm" class="form" style="display:flex; flex-direction:column; gap:12px;">
-              <div style="display:flex; gap:10px;">
-                <label style="flex:2;">
-                  <span>Nombre del Producto</span>
-                  <input name="name" list="editProductOptions" value="${entity.name}" required>
-                  <datalist id="editProductOptions">${state.db.products.map(p => `<option value="${p.name}"></option>`).join('')}</datalist>
-                </label>
-                <label style="flex:1;">
-                  <span>Precio de Venta COP</span>
-                  <input name="price" type="number" min="0" value="${entity.price}" required>
-                </label>
+          <p class="hint" style="margin:3px 0 0 0; font-size:12px;">Ajusta el precio, categoría y la lista de insumos que componen la receta de este producto.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeCatalogModalBtn" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <datalist id="allInsumosList">
+        ${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}
+      </datalist>
+
+      <form id="editProductForm" class="form" style="display:flex; flex-direction:column; flex:1; min-height:0; margin:0;">
+        <div class="modal-body">
+          <div class="catalog-inputs-row-responsive">
+            <label>
+              <span>Nombre del Producto</span>
+              <input name="name" list="editProductOptions" value="${entity.name}" required>
+              <datalist id="editProductOptions">${state.db.products.map(p => `<option value="${p.name}"></option>`).join('')}</datalist>
+            </label>
+            <label>
+              <span>Precio de Venta COP ($)</span>
+              <input name="price" type="number" min="0" value="${entity.price}" required>
+            </label>
+            <label>
+              <span>Categoría / Grupo General</span>
+              <input name="category" list="editCategoryOptions" value="${entity.category || 'Hamburguesas'}" required>
+              <datalist id="editCategoryOptions">
+                <option value="Hamburguesas"></option>
+                <option value="Perros"></option>
+                <option value="Sándwiches"></option>
+                <option value="Bebidas"></option>
+                <option value="Adiciones y Entradas"></option>
+              </datalist>
+            </label>
+            <label>
+              <span>Subgrupo / Tamaño</span>
+              <input name="subgroup" list="editSubgroupOptions" value="${entity.subgroup || 'Medianas / Normales'}" required>
+              <datalist id="editSubgroupOptions">
+                <option value="Grandes / Súper"></option>
+                <option value="Medianas / Normales"></option>
+                <option value="Pequeñas / Junior"></option>
+                <option value="Especiales / Otros"></option>
+              </datalist>
+            </label>
+          </div>
+          
+          <label class="sync-toggle" style="margin:10px 0 4px 0;">
+            <input name="directSale" type="checkbox" ${entity.directSale ? 'checked' : ''}>
+            Venta directa: no descuenta insumos de inventario
+          </label>
+          
+          <div class="catalog-editor-stack">
+            <!-- Recuadro 1 (Arriba): Ingredientes actuales - crece verticalmente -->
+            <div class="catalog-editor-section-box">
+              <div class="section-header">
+                <h4>
+                  <span>📋 Ingredientes de la Receta</span>
+                  <span class="badge badge-info" id="recipeItemsCount">${entity.recipe.length} insumos</span>
+                </h4>
+                <span class="section-desc">Insumos que se descontarán automáticamente por cada unidad vendida</span>
               </div>
               
-              <div style="display:flex; gap:10px;">
-                <label style="flex:1;">
-                  <span>Categoría / Grupo General</span>
-                  <input name="category" list="editCategoryOptions" value="${entity.category || 'Hamburguesas'}" required>
-                  <datalist id="editCategoryOptions">
-                    <option value="Hamburguesas"></option>
-                    <option value="Perros"></option>
-                    <option value="Sándwiches"></option>
-                    <option value="Bebidas"></option>
-                    <option value="Adiciones y Entradas"></option>
-                  </datalist>
-                </label>
-                <label style="flex:1;">
-                  <span>Subgrupo / Tamaño</span>
-                  <input name="subgroup" list="editSubgroupOptions" value="${entity.subgroup || 'Medianas / Normales'}" required>
-                  <datalist id="editSubgroupOptions">
-                    <option value="Grandes / Súper"></option>
-                    <option value="Medianas / Normales"></option>
-                    <option value="Pequeñas / Junior"></option>
-                    <option value="Especiales / Otros"></option>
-                  </datalist>
-                </label>
+              <div id="editRecipeLines" class="editor-items-container">
+                ${recipeLinesHtml(entity.recipe)}
               </div>
-              
-              <label class="sync-toggle" style="margin:0;">
-                <input name="directSale" type="checkbox" ${entity.directSale ? 'checked' : ''}>
-                Venta directa: no descuenta insumos de inventario
-              </label>
-              
-              <div class="modal-section-title" style="margin-top:16px;">
-                <span>Ingredientes de la Receta</span>
+            </div>
+
+            <!-- Recuadro 2 (Abajo): Buscar y añadir insumo - ancho completo -->
+            <div class="catalog-editor-section-box">
+              <div class="section-header">
+                <h4>
+                  <span>🔍 Buscar y añadir insumo a la receta</span>
+                </h4>
+                <span class="section-desc">Escribe el nombre del insumo para agregarlo a los ingredientes</span>
               </div>
-              
-              <div class="recipe-wide" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
-                <div id="editRecipeLines" style="display:flex; flex-direction:column; gap:4px; max-height:180px; overflow-y:auto; margin-bottom:12px;">${recipeLinesHtml(entity.recipe)}</div>
-                
-                <div style="border-top:1px solid #cbd5e1; padding-top:12px;">
-                  <div style="font-size:12px; font-weight:600; color:var(--brand-teal); margin-bottom:6px;">Buscar y añadir insumo:</div>
-                  <input type="text" id="insumoSearchInput" placeholder="Escribe el nombre del insumo..." autocomplete="off" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; margin-bottom:8px;">
-                  <div id="availableInsumosList" style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
-                </div>
-              </div>
-              
-              <div class="modal-footer" style="margin-top:20px; padding:0; border:none; display:flex; justify-content:space-between;">
-                <button type="button" id="deleteEdit" class="btn danger-sm" style="flex:1; margin-right:10px;">Eliminar Producto</button>
-                <button type="submit" class="btn primary" style="flex:2;">Guardar Producto y Receta</button>
-              </div>
-            </form>
+              <input type="text" id="insumoSearchInput" placeholder="Escribe el nombre del insumo..." autocomplete="off" style="width:100%; padding:9px 12px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:13.5px; margin-bottom:8px; box-sizing:border-box;">
+              <div id="availableInsumosList" class="editor-search-results"></div>
+            </div>
           </div>
         </div>
-      </div>
+
+        <div class="modal-footer modal-footer-horizontal">
+          <button type="submit" class="btn primary btn-modal-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Guardar
+          </button>
+          <button type="button" id="cancelEditBtn" class="btn outline btn-modal-action">Cancelar</button>
+          <button type="button" id="deleteEdit" class="btn danger-sm btn-modal-action">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Eliminar
+          </button>
+        </div>
+      </form>
     `;
     bindEditRecipe();
     $('#editProductForm').onsubmit = saveEditedProduct;
   }
   
-  $('#cancelEdit').onclick = () => { state.editing = null; renderCatalogEditor(); };
-  $('#deleteEdit').onclick = deleteEdited;
-  
-  // Close on backdrop click
-  const backdrop = box.querySelector('.modal-backdrop');
-  if (backdrop) {
-    backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) {
-        state.editing = null;
-        renderCatalogEditor();
-      }
-    });
-  }
+  const closeBtn = $('#closeCatalogModalBtn');
+  if (closeBtn) closeBtn.onclick = closeCatalogEditorModal;
+  const cancelBtn = $('#cancelEditBtn');
+  if (cancelBtn) cancelBtn.onclick = closeCatalogEditorModal;
+  const deleteBtn = $('#deleteEdit');
+  if (deleteBtn) deleteBtn.onclick = deleteEdited;
 }
 
 function recipeLinesHtml(recipe) {
+  if (!recipe || recipe.length === 0) {
+    return '<p class="hint" style="text-align:center; padding:16px;">Este producto no tiene ingredientes aún. Usa el buscador de abajo para agregarlos.</p>';
+  }
   return recipe.map(r => {
     const insumo = state.db.insumos.find(i => i.id === r.insumoId);
     if (!insumo) return '';
     return `
-    <span class="recipe-line" data-id="${insumo.id}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-      <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${insumo.name}</span>
-      <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
-        <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
-        <button type="button" class="btn danger-sm removeIngredient" style="padding:4px 8px; font-size:12px;">Quitar</button>
+    <div class="recipe-line editor-item-row" data-id="${insumo.id}">
+      <div class="item-title">
+        <b>${insumo.name}</b>
+        <small style="color:var(--muted); margin-left:4px;">(${insumo.unit})</small>
       </div>
-    </span>
+      <div class="recipe-line-controls item-ctrls">
+        <span style="font-size:12px; font-weight:600; color:#475569;">Descuenta:</span>
+        <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:80px; text-align:center;">
+        <span style="font-size:12px; color:var(--muted);">${insumo.unit}</span>
+        <button type="button" class="btn danger-sm removeIngredient">Quitar</button>
+      </div>
+    </div>
   `}).join('');
 }
 
@@ -1609,24 +2086,35 @@ function bindEditRecipe() {
     const available = state.db.insumos.filter(i => i.active !== false && !existingIds.includes(i.id) && i.name.toLowerCase().includes(term));
     
     if (available.length === 0) {
-      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:8px; text-align:center;">No hay más insumos para añadir.</div>';
+      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:12px; text-align:center;">No hay más insumos disponibles para añadir.</div>';
       return;
     }
 
     listContainer.innerHTML = available.map(i => `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-        <span style="font-size:12px; color:#475569; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i.name}</span>
-        <button type="button" class="btn outline addAvailableInsumo" data-id="${i.id}" style="padding:2px 8px; font-size:11px; margin-left:8px;">+ Añadir</button>
+      <div class="available-item editor-item-row">
+        <div class="item-title">
+          <b>${i.name}</b>
+          <small style="color:var(--muted); margin-left:4px;">(${i.unit})</small>
+        </div>
+        <button type="button" class="btn outline addAvailableInsumo" data-id="${i.id}" style="padding:6px 12px; font-size:12.5px; flex-shrink:0;">+ Añadir</button>
       </div>
     `).join('');
     
     listContainer.querySelectorAll('.addAvailableInsumo').forEach(btn => {
       btn.onclick = () => {
         const id = btn.dataset.id;
-        box.insertAdjacentHTML('beforeend', recipeLinesHtml([{ insumoId: id, quantity: 1 }]));
+        const emptyMsg = box.querySelector('p.hint');
+        if (emptyMsg) emptyMsg.remove();
+
+        box.insertAdjacentHTML('afterbegin', recipeLinesHtml([{ insumoId: id, quantity: 1 }]));
         bindRemoves();
         updateList();
-        searchInput.focus();
+        const counter = $('#recipeItemsCount');
+        if (counter) {
+          const count = box.querySelectorAll('.recipe-line').length;
+          counter.textContent = `${count} insumos`;
+        }
+        searchInput.focus({ preventScroll: true });
       };
     });
   };
@@ -1634,7 +2122,15 @@ function bindEditRecipe() {
   const bindRemoves = () => {
     box.querySelectorAll('.removeIngredient').forEach(b => b.onclick = () => {
       b.closest('.recipe-line').remove();
+      if (box.querySelectorAll('.recipe-line').length === 0) {
+        box.innerHTML = '<p class="hint" style="text-align:center; padding:16px;">Este producto no tiene ingredientes aún. Usa el buscador de abajo para agregarlos.</p>';
+      }
       updateList();
+      const counter = $('#recipeItemsCount');
+      if (counter) {
+        const count = box.querySelectorAll('.recipe-line').length;
+        counter.textContent = `${count} insumos`;
+      }
     });
   };
 
@@ -1649,20 +2145,27 @@ function bindEditInsumoProducts() {
   const listContainer = $('#availableProductsList');
   if (!box || !listContainer) return;
 
+  const currentInsumoUnit = (state.editing && state.editing.kind === 'insumo')
+    ? (state.db.insumos.find(i => i.id === state.editing.id)?.unit || '')
+    : '';
+
   const updateList = () => {
     const term = (searchInput.value || '').toLowerCase().trim();
     const existingIds = [...box.querySelectorAll('.insumo-recipe-line')].map(x => x.dataset.pid);
     const available = state.db.products.filter(p => !existingIds.includes(p.id) && p.name.toLowerCase().includes(term));
     
     if (available.length === 0) {
-      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:8px; text-align:center;">No hay más productos para añadir.</div>';
+      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:12px; text-align:center;">No hay más productos para añadir.</div>';
       return;
     }
 
     listContainer.innerHTML = available.map(p => `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-        <span style="font-size:12px; color:#475569; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</span>
-        <button type="button" class="btn outline addAvailableProduct" data-pid="${p.id}" data-name="${p.name}" style="padding:2px 8px; font-size:11px; margin-left:8px;">+ Añadir</button>
+      <div class="available-item editor-item-row">
+        <div class="item-title">
+          <b>${p.name}</b>
+          <small class="badge badge-info" style="margin-left:4px;">${p.category || 'Producto'}</small>
+        </div>
+        <button type="button" class="btn outline addAvailableProduct" data-pid="${p.id}" data-name="${p.name}" style="padding:6px 12px; font-size:12.5px; flex-shrink:0;">+ Añadir</button>
       </div>
     `).join('');
     
@@ -1670,18 +2173,31 @@ function bindEditInsumoProducts() {
       btn.onclick = () => {
         const pid = btn.dataset.pid;
         const pname = btn.dataset.name;
-        box.insertAdjacentHTML('beforeend', `
-          <div class="insumo-recipe-line" data-pid="${pid}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-            <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pname}</span>
-            <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
-              <input type="number" class="quantity-input" min="0.01" step="0.01" value="1" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
-              <button type="button" class="btn danger-sm remove-insumo-from-recipe" style="padding:4px 8px; font-size:12px;">Quitar</button>
+        // Remove empty state message if present
+        const emptyMsg = box.querySelector('p.hint');
+        if (emptyMsg) emptyMsg.remove();
+
+        box.insertAdjacentHTML('afterbegin', `
+          <div class="insumo-recipe-line editor-item-row" data-pid="${pid}">
+            <div class="item-title">
+              <b>${pname}</b>
+            </div>
+            <div class="recipe-line-controls item-ctrls">
+              <span style="font-size:12px; font-weight:600; color:#475569;">Descuenta:</span>
+              <input type="number" class="quantity-input" min="0.01" step="0.01" value="1" required style="width:80px; text-align:center;">
+              <span style="font-size:12px; color:var(--muted);">${currentInsumoUnit}</span>
+              <button type="button" class="btn danger-sm remove-insumo-from-recipe">Quitar</button>
             </div>
           </div>
         `);
         bindRemoves();
         updateList();
-        searchInput.focus();
+        const counter = $('#usingProductsCount');
+        if (counter) {
+          const count = box.querySelectorAll('.insumo-recipe-line').length;
+          counter.textContent = `${count} recetas`;
+        }
+        searchInput.focus({ preventScroll: true });
       };
     });
   };
@@ -1689,7 +2205,15 @@ function bindEditInsumoProducts() {
   const bindRemoves = () => {
     box.querySelectorAll('.remove-insumo-from-recipe').forEach(b => b.onclick = () => {
       b.closest('.insumo-recipe-line').remove();
+      if (box.querySelectorAll('.insumo-recipe-line').length === 0) {
+        box.innerHTML = '<p class="hint" style="text-align:center; padding:16px;">Ningún producto tiene vinculado este insumo todavía. Usa el buscador de abajo para agregarlo.</p>';
+      }
       updateList();
+      const counter = $('#usingProductsCount');
+      if (counter) {
+        const count = box.querySelectorAll('.insumo-recipe-line').length;
+        counter.textContent = `${count} recetas`;
+      }
     });
   };
 
@@ -1701,6 +2225,7 @@ function bindEditInsumoProducts() {
 async function saveEditedInsumo(e) {
   e.preventDefault();
   const f = new FormData(e.target);
+  const date = $('#date')?.value || today();
   
   const currentProductIds = [...$('#insumoRecipesList').querySelectorAll('.insumo-recipe-line')].map(el => ({
     id: el.dataset.pid,
@@ -1734,25 +2259,27 @@ async function saveEditedInsumo(e) {
   });
   
   for (const p of productsToUpdate) {
-    await api(`/api/catalog/product/${p.id}`, 'PUT', p);
+    await api(`/api/catalog/product/${p.id}?date=${date}`, 'PUT', p);
   }
   
-  const x = await api(`/api/catalog/insumo/${state.editing.id}`, 'PUT', Object.fromEntries(f));
+  const x = await api(`/api/catalog/insumo/${state.editing.id}?date=${date}`, 'PUT', Object.fromEntries(f));
   state.db.insumos = x.insumos;
   state.db.products = x.products;
-  state.editing = null;
+  if (x.report) state.report = x.report;
+  closeCatalogEditorModal();
   render();
   toast('Insumo y recetas actualizados');
 }
 
 async function saveEditedProduct(e) {
   e.preventDefault();
+  const date = $('#date')?.value || today();
   const f = new FormData(e.target);
   const recipe = [...$('#editRecipeLines').querySelectorAll('.recipe-line')].map(x => ({
     insumoId: x.dataset.id,
     quantity: Number(x.querySelector('.quantity-input').value)
   })).filter(r => r.insumoId);
-  const x = await api(`/api/catalog/product/${state.editing.id}`, 'PUT', {
+  const x = await api(`/api/catalog/product/${state.editing.id}?date=${date}`, 'PUT', {
     name: f.get('name'),
     category: f.get('category'),
     subgroup: f.get('subgroup'),
@@ -1762,19 +2289,28 @@ async function saveEditedProduct(e) {
   });
   state.db.insumos = x.insumos;
   state.db.products = x.products;
-  state.editing = null;
+  if (x.report) state.report = x.report;
+  closeCatalogEditorModal();
   render();
   toast('Producto y receta actualizados');
 }
 
 async function deleteEdited() {
   const label = state.editing.kind === 'insumo' ? 'insumo' : 'producto';
-  if (!confirm(`¿Estás seguro de eliminar este ${label}?`)) return;
+  const confirmed = await showActionDialog({
+    title: `Eliminar ${label}`,
+    message: `¿Estás seguro de eliminar este ${label} del catálogo?`,
+    confirmText: 'Eliminar',
+    isDanger: true
+  });
+  if (!confirmed) return;
   try {
-    const x = await api(`/api/catalog/${state.editing.kind}/${state.editing.id}`, 'DELETE');
+    const date = $('#date')?.value || today();
+    const x = await api(`/api/catalog/${state.editing.kind}/${state.editing.id}?date=${date}`, 'DELETE');
     state.db.insumos = x.insumos;
     state.db.products = x.products;
-    state.editing = null;
+    if (x.report) state.report = x.report;
+    closeCatalogEditorModal();
     render();
     toast(`${label[0].toUpperCase() + label.slice(1)} eliminado correctamente`);
   } catch (e) {
@@ -1783,7 +2319,13 @@ async function deleteEdited() {
 }
 
 async function deleteExpense(expenseId) {
-  if (!confirm('¿Eliminar este gasto de caja?')) return;
+  const confirmed = await showActionDialog({
+    title: 'Eliminar Gasto',
+    message: '¿Estás seguro de eliminar este gasto de caja?',
+    confirmText: 'Eliminar Gasto',
+    isDanger: true
+  });
+  if (!confirmed) return;
   try {
     const date = $('#date').value;
     const x = await api(`/api/expense/${expenseId}?date=${date}`, 'DELETE');
@@ -1797,7 +2339,13 @@ async function deleteExpense(expenseId) {
 }
 
 async function deleteMovement(movementId) {
-  if (!confirm('¿Eliminar este movimiento de inventario?')) return;
+  const confirmed = await showActionDialog({
+    title: 'Eliminar Movimiento',
+    message: '¿Estás seguro de eliminar este movimiento de inventario?',
+    confirmText: 'Eliminar Movimiento',
+    isDanger: true
+  });
+  if (!confirmed) return;
   try {
     const date = $('#date').value;
     const x = await api(`/api/movement/${movementId}?date=${date}`, 'DELETE');
@@ -1898,9 +2446,11 @@ function bind() {
   // Add Insumo Form
   $('#insumoForm').onsubmit = async e => {
     e.preventDefault();
-    const x = await api('/api/catalog', 'POST', { kind: 'insumo', ...Object.fromEntries(new FormData(e.target)) });
+    const date = $('#date')?.value || today();
+    const x = await api(`/api/catalog?date=${date}`, 'POST', { kind: 'insumo', ...Object.fromEntries(new FormData(e.target)) });
     state.db.insumos = x.insumos;
     state.db.products = x.products;
+    if (x.report) state.report = x.report;
     render();
     e.target.reset();
     toast('Nuevo insumo añadido');
@@ -1962,12 +2512,13 @@ function bind() {
   // Add Product Form
   $('#productForm').onsubmit = async e => {
     e.preventDefault();
+    const date = $('#date')?.value || today();
     const f = new FormData(e.target);
     const recipe = [...$('#recipeLines').querySelectorAll('.recipe-line')].map(x => ({
       insumoId: x.querySelector('select').value,
       quantity: Number(x.querySelector('input').value)
     }));
-    const x = await api('/api/catalog', 'POST', {
+    const x = await api(`/api/catalog?date=${date}`, 'POST', {
       kind: 'product',
       name: f.get('name'),
       category: f.get('category'),
@@ -1978,6 +2529,7 @@ function bind() {
     });
     state.db.insumos = x.insumos;
     state.db.products = x.products;
+    if (x.report) state.report = x.report;
     e.target.reset();
     $('#recipeLines').innerHTML = '';
     render();
@@ -2019,6 +2571,13 @@ function bind() {
     };
   }
 
+  const collapseAllBtn = $('#toggleCollapseAllCatsBtn');
+  if (collapseAllBtn) {
+    collapseAllBtn.onclick = () => {
+      toggleAllCategoriesAndSubgroups();
+    };
+  }
+
   const toggleAuditBtn = $('#toggleEditAuditBtn');
   if (toggleAuditBtn) {
     toggleAuditBtn.onclick = () => {
@@ -2027,8 +2586,42 @@ function bind() {
     };
   }
 
+  // Cloud Sync Handler
+  const syncBtn = $('#btnCloudSync');
+  if (syncBtn) {
+    syncBtn.onclick = async () => {
+      const originalHtml = syncBtn.innerHTML;
+      try {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          <span>Sincronizando...</span>
+        `;
+        const date = $('#date').value || today();
+        const res = await api(`/api/cloud-restore?date=${date}`, 'POST');
+        if (res.success) {
+          state.db = res.db;
+          state.day = res.day;
+          state.report = res.report;
+          render();
+          toast(`☁️ ${res.message}`);
+        } else {
+          toast(res.error || 'No se pudo sincronizar');
+        }
+      } catch (err) {
+        toast(`Error de sincronización: ${err.message}`);
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = originalHtml;
+      }
+    };
+  }
+
   // Subgroup Products Manager Modal
   initSubgroupProductsModal();
+
+  // Catalog Editor Modal (Ventana Emergente)
+  initCatalogEditorModal();
 }
 
 // Initializer

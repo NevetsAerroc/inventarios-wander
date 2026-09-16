@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Settings collection
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId);
+    }
+
+    // Insumos collection
+    match /insumos/{insumoId} {
+      allow read: if true;
+      allow write: if isValidId(insumoId);
+    }
+
+    // Products collection
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isValidId(productId);
+    }
+
+    // Days collection
+    match /days/{dayId} {
+      allow read: if true;
+      allow write: if isValidId(dayId);
+    }
+  }
+}

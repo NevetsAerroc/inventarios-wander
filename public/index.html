@@ -25,11 +25,20 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
       </div>
       <div>
-        <div class="eyebrow">SISTEMA DE CONTROL DE OPERACIONES</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="eyebrow">SISTEMA DE CONTROL DE OPERACIONES</div>
+          <span id="cloudIndicator" class="cloud-pill" title="Conectado a Google Cloud Firestore. Tus registros están protegidos y permanentes.">
+            <span class="cloud-dot"></span> Nube Permanente
+          </span>
+        </div>
         <h1>Wander <span>· Cuadre de Caja e Inventario</span></h1>
       </div>
     </div>
     <div class="header-actions">
+      <button id="btnCloudSync" class="btn btn-secondary btn-sm" title="Consultar y sincronizar recetas y datos desde Cloud Firestore" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:38px; font-weight:600;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span>Sincronizar Nube</span>
+      </button>
       <div class="date-picker-group">
         <label for="date">Fecha de operación</label>
         <div class="date-input-wrap">
@@ -154,7 +163,7 @@
 
         <div class="list-section">
           <h3>Ventas Registradas en la Tirilla</h3>
-          <div id="salesList" class="list sales-grid"></div>
+          <div id="salesList"></div>
         </div>
       </article>
     </section>
@@ -256,6 +265,10 @@
             <p class="hint">Resumen de productos vendidos y equivalencia total de panes, carnes y salchichas resultantes por categoría.</p>
           </div>
           <div class="header-tools">
+            <button id="toggleCollapseAllCatsBtn" type="button" class="btn outline" style="font-size:12px; padding:5px 9px;" title="Plegar o desplegar todas las categorías y subgrupos">
+              <svg id="toggleCollapseAllCatsIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
+              <span id="toggleCollapseAllCatsText">Plegar Todo</span>
+            </button>
             <button id="toggleEditCategoryBtn" type="button" class="btn outline edit-mode-btn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
               <span>Personalizar y Mover con Ratón</span>
@@ -335,7 +348,6 @@
 
     <!-- TAB 4: RECETARIO Y PRECIOS -->
     <section id="catalogo" class="tab">
-      <div id="catalogEditor"></div>
 
       <div class="dashboard-grid">
         
@@ -366,7 +378,7 @@
           </form>
 
           <div class="list-section">
-            <div id="insumosList" class="list"></div>
+            <div id="insumosList" class="catalog-list-wrapper"></div>
           </div>
         </article>
 
@@ -434,7 +446,7 @@
           </form>
 
           <div class="list-section">
-            <div id="productsList" class="list"></div>
+            <div id="productsList" class="catalog-list-wrapper"></div>
           </div>
         </article>
 
@@ -453,7 +465,15 @@
           <h3 id="subgroupModalTitle" style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Gestionar Productos del Subgrupo</h3>
           <p id="subgroupModalSubtitle" style="margin:3px 0 0 0; font-size:12px; color:var(--muted);"></p>
         </div>
-        <button type="button" id="closeSubgroupModalBtn" class="modal-close-btn" title="Cerrar modal">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" id="modalRenameSubgroupBtn" class="btn secondary" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:4px;" title="Editar o cambiar el nombre de este subgrupo">
+            ✏️ Renombrar
+          </button>
+          <button type="button" id="modalDeleteSubgroupBtn" class="btn danger" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:4px;" title="Eliminar este subgrupo y reasignar sus productos">
+            🗑️ Eliminar
+          </button>
+          <button type="button" id="closeSubgroupModalBtn" class="modal-close-btn" title="Cerrar modal">&times;</button>
+        </div>
       </div>
 
       <div class="modal-body">
@@ -476,9 +496,9 @@
         <!-- Mini-formulario para crear producto nuevo en el subgrupo -->
         <form id="modalNewProductForm" class="modal-new-form hidden">
           <div style="font-weight:700; font-size:12.5px; margin-bottom:6px; color:var(--brand-teal);">Nuevo Producto para este Subgrupo:</div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <input type="text" id="modalNewProdName" placeholder="Nombre (ej. Combo 5, Grande de llevar)" required style="flex:2; min-width:180px;">
-            <input type="number" id="modalNewProdPrice" placeholder="Precio COP" min="0" step="500" value="0" style="flex:1; min-width:110px;">
+          <div class="modal-form-row">
+            <input type="text" id="modalNewProdName" class="modal-input-flex-2" placeholder="Nombre (ej. Combo 5, Grande de llevar)" required>
+            <input type="number" id="modalNewProdPrice" class="modal-input-flex-1" placeholder="Precio COP" min="0" step="500" value="0">
             <button type="submit" class="btn primary" style="padding:6px 12px; font-size:12px;">Guardar y Añadir</button>
             <button type="button" id="cancelModalNewProdBtn" class="btn outline" style="padding:6px 10px; font-size:12px;">Cancelar</button>
           </div>
@@ -504,6 +524,35 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Emergente para Editar Insumos y Productos / Recetas -->
+  <div id="catalogEditorModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="catalogModalTitle">
+    <div class="modal-box" id="catalogModalBox">
+      <!-- Contenido renderizado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Modal Universal de Confirmación y Edición de Subgrupos / Acciones -->
+  <div id="actionPromptModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="actionPromptTitle" style="z-index: 9999;">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="actionPromptTitle" style="margin:0; font-size:16px; font-weight:800; color:var(--text);">Acción</h3>
+        <button type="button" id="closeActionPromptBtn" class="modal-close-btn" title="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 20px;">
+        <p id="actionPromptMessage" style="margin:0 0 12px 0; font-size:13.5px; color:var(--text); line-height:1.5;"></p>
+        <div id="actionPromptInputWrap" class="hidden" style="margin-bottom:12px;">
+          <label id="actionPromptInputLabel" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--muted);"></label>
+          <input type="text" id="actionPromptInput" style="width:100%; padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;" autocomplete="off">
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" id="cancelActionPromptBtn" class="btn outline" style="padding:6px 14px; font-size:13px;">Cancelar</button>
+        <button type="button" id="confirmActionPromptBtn" class="btn primary" style="padding:6px 16px; font-size:13px;">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/app.js"></script>
 </body>
 </html>

@@ -2,10 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
+const firestoreSync = require('./pg-sync');
 
 const PORT = 3000;
 const ROOT = __dirname;
-const DATA_DIR = path.join(ROOT, 'data');
+const isProd = process.env.NODE_ENV === 'production';
+const DATA_DIR = isProd ? path.join('/tmp', 'data') : path.join(ROOT, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 function today() {
@@ -62,13 +64,39 @@ function readDb() {
     if (p.category !== newCat) { p.category = newCat; changed = true; }
     if (p.subgroup !== newSub) { p.subgroup = newSub; changed = true; }
   });
-  if (changed) writeDb(db);
+  if (changed) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  }
   return db;
 }
 
-function writeDb(db) {
+function writeDb(db, options = {}) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+
+  // Sincronización precisa y económica con Cloud Firestore
+  if (options.day) {
+    firestoreSync.saveDayToFirestore(options.day);
+  }
+  if (options.settings) {
+    firestoreSync.saveSettingsToFirestore(db.settings);
+  }
+  if (options.product) {
+    firestoreSync.saveProductToFirestore(options.product);
+  }
+  if (options.deleteProduct) {
+    firestoreSync.deleteProductFromFirestore(options.deleteProduct);
+  }
+  if (options.insumo) {
+    firestoreSync.saveInsumoToFirestore(options.insumo);
+  }
+  if (options.catalog) {
+    firestoreSync.saveCatalogToFirestore(db.insumos, db.products);
+  }
+  if (options.all) {
+    firestoreSync.saveAllToFirestore(db);
+  }
 }
 
 function id(prefix) {
@@ -98,6 +126,9 @@ function seedDb() {
 }
 
 function json(res, status, data) {
+  if (data && typeof data === 'object') {
+    data.quotaWarning = firestoreSync.isQuotaExceeded();
+  }
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(data));
 }
@@ -226,11 +257,11 @@ function report(db, day) {
     if (qty > 0) {
       matchingSales.forEach(s => {
         const sQty = Number(s.quantity || 0);
-        const recipe = s.recipeSnapshot || p.recipe || [];
+        const recipe = (p.recipe && p.recipe.length > 0) ? p.recipe : (s.recipeSnapshot || []);
         recipe.forEach(r => {
           const insumo = db.insumos.find(i => i.id === r.insumoId);
           if (!insumo) return;
-          const ingQty = r.quantity * sQty;
+          const ingQty = Number(r.quantity || 0) * sQty;
 
           if (!categoryMap[cat].subgroups[sub].insumosTheoretical[insumo.id]) {
             categoryMap[cat].subgroups[sub].insumosTheoretical[insumo.id] = { insumo, theoretical: 0 };
@@ -275,16 +306,54 @@ function report(db, day) {
       price: unitPrice,
       total: lineTotal
     });
+
+    // Si tiene receta en el snapshot de venta o producto con nombre similar
+    const catalogMatch = db.products.find(x => normalize(x.name) === normalize(s.productName));
+    const recipe = (catalogMatch?.recipe && catalogMatch.recipe.length > 0) ? catalogMatch.recipe : (s.recipeSnapshot || []);
+    recipe.forEach(r => {
+      const insumo = db.insumos.find(i => i.id === r.insumoId);
+      if (!insumo) return;
+      const ingQty = Number(r.quantity || 0) * qty;
+
+      if (!categoryMap[cat].subgroups[sub].insumosTheoretical[insumo.id]) {
+        categoryMap[cat].subgroups[sub].insumosTheoretical[insumo.id] = { insumo, theoretical: 0 };
+      }
+      categoryMap[cat].subgroups[sub].insumosTheoretical[insumo.id].theoretical += ingQty;
+
+      if (!categoryMap[cat].categoryInsumosTheoretical[insumo.id]) {
+        categoryMap[cat].categoryInsumosTheoretical[insumo.id] = { insumo, theoretical: 0 };
+      }
+      categoryMap[cat].categoryInsumosTheoretical[insumo.id].theoretical += ingQty;
+    });
   });
 
   const categoryBreakdown = Object.values(categoryMap).map(c => {
     const subgroups = Object.values(c.subgroups).map(sg => {
-      // Insumos clave asociados a las recetas de este subgrupo
+      // Insumos asociados a las recetas de TODOS los productos pertenecientes a este subgrupo
       const insumoIds = new Set();
-      sg.products.forEach(p => {
-        const prod = db.products.find(x => x.id === p.id);
-        (prod?.recipe || []).forEach(r => insumoIds.add(r.insumoId));
+
+      // 1. Insumos de todos los productos del catálogo asignados a este subgrupo (incluso si hoy no tienen ventas)
+      const catalogSubgroupProds = db.products.filter(p => {
+        const pCat = p.category || inferCategory(p.name);
+        const pSub = p.subgroup || inferSubgroup(p.name);
+        return pCat === c.category && pSub === sg.subgroup;
       });
+      catalogSubgroupProds.forEach(prod => {
+        (prod?.recipe || []).forEach(r => {
+          if (r.insumoId) insumoIds.add(r.insumoId);
+        });
+      });
+
+      // 2. Insumos de productos registrados en sg.products
+      sg.products.forEach(p => {
+        const prod = db.products.find(x => (p.id && x.id === p.id) || normalize(x.name) === normalize(p.name));
+        (prod?.recipe || []).forEach(r => {
+          if (r.insumoId) insumoIds.add(r.insumoId);
+        });
+      });
+
+      // 3. Cualquier insumo que haya registrado consumo teórico
+      Object.keys(sg.insumosTheoretical || {}).forEach(insId => insumoIds.add(insId));
 
       const insumosAudit = Array.from(insumoIds).map(insumoId => {
         const insumo = db.insumos.find(i => i.id === insumoId);
@@ -312,18 +381,32 @@ function report(db, day) {
       };
     });
 
-    const categoryInsumosAudit = Object.values(c.categoryInsumosTheoretical).map(item => {
-      const invMatch = inventory.find(inv => inv.insumo.id === item.insumo.id);
+    // Insumos asociados a la categoría completa
+    const catInsumoIds = new Set();
+    const catalogCatProds = db.products.filter(p => (p.category || inferCategory(p.name)) === c.category);
+    catalogCatProds.forEach(prod => {
+      (prod?.recipe || []).forEach(r => {
+        if (r.insumoId) catInsumoIds.add(r.insumoId);
+      });
+    });
+    Object.keys(c.categoryInsumosTheoretical || {}).forEach(insId => catInsumoIds.add(insId));
+
+    const categoryInsumosAudit = Array.from(catInsumoIds).map(insumoId => {
+      const insumo = db.insumos.find(i => i.id === insumoId);
+      if (!insumo || !insumo.name) return null;
+      const theoItem = c.categoryInsumosTheoretical[insumoId];
+      const theoretical = theoItem ? theoItem.theoretical : 0;
+      const invMatch = inventory.find(inv => inv.insumo.id === insumoId);
       const calculatedOut = invMatch ? invMatch.calculatedOut : 0;
-      const diff = calculatedOut - item.theoretical;
+      const diff = calculatedOut - theoretical;
       return {
-        insumo: item.insumo,
-        theoretical: item.theoretical,
+        insumo: { id: insumo.id, name: insumo.name, unit: insumo.unit || 'unidad', price: Number(insumo.price || 0) },
+        theoretical,
         calculatedOut,
         difference: diff,
-        value: diff * item.insumo.price
+        value: diff * Number(insumo.price || 0)
       };
-    });
+    }).filter(Boolean);
 
     return {
       category: c.category,
@@ -491,7 +574,6 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/bootstrap' && req.method === 'GET') {
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
-      writeDb(db);
       return json(res, 200, { db: { insumos: db.insumos, products: db.products, settings: db.settings }, day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/day' && req.method === 'POST') {
@@ -504,14 +586,14 @@ const server = http.createServer(async (req, res) => {
         const { payments, physical, opening, ...other } = data.patch;
         Object.assign(d, other);
       }
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 200, { day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/movement' && req.method === 'POST') {
       const x = await body(req);
       const d = dayFor(db, x.date);
       d.movements.push({ id: id('m'), insumoId: x.insumoId, type: x.type, quantity: Number(x.quantity), note: x.note || '', createdAt: new Date().toISOString() });
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 201, { day: d, report: report(db, d) });
     }
     if (url.pathname.startsWith('/api/movement/') && req.method === 'DELETE') {
@@ -519,14 +601,14 @@ const server = http.createServer(async (req, res) => {
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       d.movements = d.movements.filter(m => m.id !== movementId);
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 200, { day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/expense' && req.method === 'POST') {
       const x = await body(req);
       const d = dayFor(db, x.date);
       d.expenses.push({ id: id('e'), provider: x.provider, detail: x.detail || '', amount: Number(x.amount) });
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 201, { day: d, report: report(db, d) });
     }
     if (url.pathname.startsWith('/api/expense/') && req.method === 'DELETE') {
@@ -534,14 +616,14 @@ const server = http.createServer(async (req, res) => {
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       d.expenses = d.expenses.filter(e => e.id !== expenseId);
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 200, { day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/sales' && req.method === 'POST') {
       const x = await body(req);
       const d = dayFor(db, x.date);
       d.sales = x.sales.map(s => saleRecord(db, s.productId, s.quantity));
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 200, { day: d, report: report(db, d) });
     }
     if (url.pathname === '/api/import-sales' && req.method === 'POST') {
@@ -567,7 +649,7 @@ const server = http.createServer(async (req, res) => {
         aggregated[p.id] = (aggregated[p.id] || 0) + r.quantity;
       });
       d.sales = Object.entries(aggregated).map(([productId, quantity]) => saleRecord(db, productId, quantity));
-      writeDb(db);
+      writeDb(db, { day: d });
       return json(res, 200, { day: d, report: report(db, d), products: db.products, created, imported: rows.length, matched: d.sales.length });
     }
     if (url.pathname === '/api/import-insumos' && req.method === 'POST') {
@@ -598,7 +680,7 @@ const server = http.createServer(async (req, res) => {
         }
       });
 
-      writeDb(db);
+      writeDb(db, { catalog: true });
       return json(res, 200, { insumos: db.insumos, products: db.products, added, updated, removed });
     }
     if (url.pathname === '/api/import-products' && req.method === 'POST') {
@@ -634,41 +716,61 @@ const server = http.createServer(async (req, res) => {
       db.products = db.products.filter(p => keep.has(normalize(p.name)));
       const removed = before - db.products.length;
 
-      writeDb(db);
+      writeDb(db, { catalog: true });
       return json(res, 200, { insumos: db.insumos, products: db.products, added, updated, removed, missing: [...new Set(missing)] });
     }
     if (url.pathname === '/api/catalog' && req.method === 'POST') {
+      const date = url.searchParams.get('date') || today();
+      const day = dayFor(db, date);
       const x = await body(req);
-      if (x.kind === 'insumo') db.insumos.push({ id: id('i'), name: x.name, unit: x.unit || 'unidad', price: Number(x.price || 0), active: true });
-      if (x.kind === 'product') db.products.push({ id: id('p'), name: x.name, price: Number(x.price || 0), recipe: x.recipe || [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) });
-      writeDb(db);
-      return json(res, 201, { insumos: db.insumos, products: db.products });
+      let newEntity = null;
+      if (x.kind === 'insumo') {
+        newEntity = { id: id('i'), name: x.name, unit: x.unit || 'unidad', price: Number(x.price || 0), active: true };
+        db.insumos.push(newEntity);
+        writeDb(db, { insumo: newEntity });
+      }
+      if (x.kind === 'product') {
+        newEntity = { id: id('p'), name: x.name, price: Number(x.price || 0), recipe: x.recipe || [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) };
+        db.products.push(newEntity);
+        writeDb(db, { product: newEntity });
+      }
+      return json(res, 201, { insumos: db.insumos, products: db.products, report: report(db, day) });
     }
     if (url.pathname.startsWith('/api/catalog/') && req.method === 'PUT') {
+      const date = url.searchParams.get('date') || today();
+      const day = dayFor(db, date);
       const [, , , kind, entityId] = url.pathname.split('/');
       const x = await body(req);
       const collection = kind === 'insumo' ? db.insumos : kind === 'product' ? db.products : null;
       const entity = collection?.find(i => i.id === entityId);
       if (!entity) return json(res, 404, { error: 'Registro no encontrado' });
-      if (kind === 'insumo') Object.assign(entity, { name: String(x.name || '').trim(), unit: String(x.unit || 'unidad').trim(), price: Number(x.price || 0), active: x.active !== false });
-      if (kind === 'product') Object.assign(entity, { name: String(x.name || '').trim(), price: Number(x.price || 0), recipe: Array.isArray(x.recipe) ? x.recipe : [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) });
-      writeDb(db);
-      return json(res, 200, { insumos: db.insumos, products: db.products });
+      if (kind === 'insumo') {
+        Object.assign(entity, { name: String(x.name || '').trim(), unit: String(x.unit || 'unidad').trim(), price: Number(x.price || 0), active: x.active !== false });
+        writeDb(db, { insumo: entity });
+      }
+      if (kind === 'product') {
+        Object.assign(entity, { name: String(x.name || '').trim(), price: Number(x.price || 0), recipe: Array.isArray(x.recipe) ? x.recipe : [], directSale: Boolean(x.directSale), category: String(x.category || '').trim() || inferCategory(x.name), subgroup: String(x.subgroup || '').trim() || inferSubgroup(x.name) });
+        writeDb(db, { product: entity });
+      }
+      return json(res, 200, { insumos: db.insumos, products: db.products, report: report(db, day) });
     }
     if (url.pathname.startsWith('/api/catalog/') && req.method === 'DELETE') {
+      const date = url.searchParams.get('date') || today();
+      const day = dayFor(db, date);
       const [, , , kind, entityId] = url.pathname.split('/');
       if (kind === 'insumo') {
         const entity = db.insumos.find(i => i.id === entityId);
         if (!entity) return json(res, 404, { error: 'Insumo no encontrado' });
         entity.active = false;
+        writeDb(db, { insumo: entity });
       }
       if (kind === 'product') {
         const before = db.products.length;
         db.products = db.products.filter(p => p.id !== entityId);
         if (before === db.products.length) return json(res, 404, { error: 'Producto no encontrado' });
+        writeDb(db, { deleteProduct: entityId });
       }
-      writeDb(db);
-      return json(res, 200, { insumos: db.insumos, products: db.products });
+      return json(res, 200, { insumos: db.insumos, products: db.products, report: report(db, day) });
     }
     if (url.pathname === '/api/subgroups/assign-products' && req.method === 'POST') {
       const x = await body(req);
@@ -744,16 +846,111 @@ const server = http.createServer(async (req, res) => {
         });
       }
 
-      writeDb(db);
+      writeDb(db, { catalog: true, settings: true });
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       return json(res, 200, { insumos: db.insumos, products: db.products, report: report(db, d), settings: db.settings });
+    }
+    if (url.pathname === '/api/subgroups/rename' && req.method === 'POST') {
+      const x = await body(req);
+      const category = String(x.category || '').trim();
+      const oldSubgroup = String(x.oldSubgroup || '').trim();
+      const newSubgroup = String(x.newSubgroup || '').trim();
+      if (!category || !oldSubgroup || !newSubgroup) {
+        return json(res, 400, { error: 'Categoría, subgrupo actual y nuevo nombre son obligatorios' });
+      }
+
+      let count = 0;
+      db.products.forEach(p => {
+        if ((p.category || '').toLowerCase() === category.toLowerCase() &&
+            (p.subgroup || '').toLowerCase() === oldSubgroup.toLowerCase()) {
+          p.subgroup = newSubgroup;
+          count++;
+        }
+      });
+
+      // Update viewSettings
+      if (!db.settings) db.settings = { businessName: 'Wander', currency: 'COP' };
+      if (!db.settings.viewSettings) db.settings.viewSettings = {};
+      const vs = db.settings.viewSettings;
+      if (vs.subgroupOrder && Array.isArray(vs.subgroupOrder[category])) {
+        vs.subgroupOrder[category] = vs.subgroupOrder[category].map(s =>
+          s.toLowerCase() === oldSubgroup.toLowerCase() ? newSubgroup : s
+        );
+      }
+      if (vs.subgroupInsumoOrder) {
+        const oldKey = `${category}::${oldSubgroup}`;
+        const newKey = `${category}::${newSubgroup}`;
+        if (vs.subgroupInsumoOrder[oldKey]) {
+          vs.subgroupInsumoOrder[newKey] = vs.subgroupInsumoOrder[oldKey];
+          delete vs.subgroupInsumoOrder[oldKey];
+        }
+      }
+      if (vs.productOrder) {
+        const oldKey = `${category}::${oldSubgroup}`;
+        const newKey = `${category}::${newSubgroup}`;
+        if (vs.productOrder[oldKey]) {
+          vs.productOrder[newKey] = vs.productOrder[oldKey];
+          delete vs.productOrder[oldKey];
+        }
+      }
+      if (vs.hiddenSubgroups && Array.isArray(vs.hiddenSubgroups[category])) {
+        vs.hiddenSubgroups[category] = vs.hiddenSubgroups[category].map(s =>
+          s.toLowerCase() === oldSubgroup.toLowerCase() ? newSubgroup : s
+        );
+      }
+
+      writeDb(db, { catalog: true, settings: true });
+      const date = url.searchParams.get('date') || today();
+      const d = dayFor(db, date);
+      return json(res, 200, { products: db.products, report: report(db, d), settings: db.settings, count });
+    }
+    if (url.pathname === '/api/subgroups/delete' && req.method === 'POST') {
+      const x = await body(req);
+      const category = String(x.category || '').trim();
+      const subgroup = String(x.subgroup || '').trim();
+      const targetSubgroup = String(x.targetSubgroup || 'Especiales / Otros').trim();
+      if (!category || !subgroup) {
+        return json(res, 400, { error: 'Categoría y subgrupo son obligatorios' });
+      }
+
+      let count = 0;
+      db.products.forEach(p => {
+        if ((p.category || '').toLowerCase() === category.toLowerCase() &&
+            (p.subgroup || '').toLowerCase() === subgroup.toLowerCase()) {
+          p.subgroup = targetSubgroup;
+          count++;
+        }
+      });
+
+      // Clean viewSettings
+      if (!db.settings) db.settings = { businessName: 'Wander', currency: 'COP' };
+      if (!db.settings.viewSettings) db.settings.viewSettings = {};
+      const vs = db.settings.viewSettings;
+      if (vs.subgroupOrder && Array.isArray(vs.subgroupOrder[category])) {
+        vs.subgroupOrder[category] = vs.subgroupOrder[category].filter(s =>
+          s.toLowerCase() !== subgroup.toLowerCase()
+        );
+      }
+      const key = `${category}::${subgroup}`;
+      if (vs.subgroupInsumoOrder) delete vs.subgroupInsumoOrder[key];
+      if (vs.productOrder) delete vs.productOrder[key];
+      if (vs.hiddenSubgroups && Array.isArray(vs.hiddenSubgroups[category])) {
+        vs.hiddenSubgroups[category] = vs.hiddenSubgroups[category].filter(s =>
+          s.toLowerCase() !== subgroup.toLowerCase()
+        );
+      }
+
+      writeDb(db, { catalog: true, settings: true });
+      const date = url.searchParams.get('date') || today();
+      const d = dayFor(db, date);
+      return json(res, 200, { products: db.products, report: report(db, d), settings: db.settings, count });
     }
     if (url.pathname === '/api/view-settings' && req.method === 'PUT') {
       const x = await body(req);
       if (!db.settings) db.settings = { businessName: 'Wander', currency: 'COP' };
       db.settings.viewSettings = Object.assign(db.settings.viewSettings || {}, x.viewSettings || {});
-      writeDb(db);
+      writeDb(db, { settings: true });
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       return json(res, 200, { settings: db.settings, report: report(db, d) });
@@ -822,6 +1019,47 @@ const server = http.createServer(async (req, res) => {
       return res.end(content);
     }
 
+    if (url.pathname === '/api/cloud-status' && req.method === 'GET') {
+      const dbInstance = firestoreSync.getFirestore();
+      return json(res, 200, {
+        cloudConnected: Boolean(dbInstance),
+        database: 'PostgreSQL Enterprise (Wander Cloud SQL)',
+        provider: 'Google Cloud Platform',
+        localCount: {
+          insumos: db.insumos.length,
+          products: db.products.length,
+          days: db.days.length
+        }
+      });
+    }
+    if (url.pathname === '/api/sync-cloud' && req.method === 'POST') {
+      await firestoreSync.saveAllToFirestore(db);
+      return json(res, 200, { success: true, message: 'Copia de seguridad guardada en Cloud Firestore exitosamente.' });
+    }
+    if (url.pathname === '/api/cloud-restore' && req.method === 'POST') {
+      const cloudRes = await firestoreSync.loadFromFirestore(3);
+      if (cloudRes && cloudRes.success && (cloudRes.insumos?.length || cloudRes.products?.length)) {
+        const cloudData = {
+          settings: cloudRes.settings || { businessName: 'Wander', currency: 'COP' },
+          insumos: cloudRes.insumos || [],
+          products: cloudRes.products || [],
+          days: cloudRes.days || []
+        };
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+        fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2));
+        const date = url.searchParams.get('date') || today();
+        const d = dayFor(cloudData, date);
+        return json(res, 200, {
+          success: true,
+          message: `Sincronizados ${cloudData.insumos.length} insumos y ${cloudData.products.length} productos desde Cloud Firestore`,
+          db: { insumos: cloudData.insumos, products: cloudData.products, settings: cloudData.settings },
+          day: d,
+          report: report(cloudData, d)
+        });
+      }
+      return json(res, 400, { error: 'No se pudieron recuperar datos de Cloud Firestore: ' + (cloudRes.reason || 'Sin datos') });
+    }
+
     if (url.pathname === '/' || url.pathname === '/index.html') return serve(res, 'index.html', 'text/html');
     if (url.pathname === '/app.js') return serve(res, 'app.js', 'application/javascript');
     if (url.pathname === '/styles.css') return serve(res, 'styles.css', 'text/css');
@@ -869,4 +1107,35 @@ server.on('error', (err) => {
   }
 });
 
-server.listen(PORT, '0.0.0.0', () => console.log(`Wander listo en http://0.0.0.0:${PORT}`));
+function startServer() {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Wander listo en http://0.0.0.0:${PORT}`);
+    
+    // Background cloud sync
+    firestoreSync.loadFromFirestore(3).then(cloudRes => {
+      if (cloudRes && cloudRes.success && (cloudRes.insumos?.length || cloudRes.products?.length || cloudRes.days?.length)) {
+        console.log(`[Server] Sincronizando datos de Cloud Firestore a caché local (${cloudRes.insumos.length} insumos, ${cloudRes.products.length} productos)...`);
+        const cloudData = {
+          settings: cloudRes.settings || { businessName: 'Wander', currency: 'COP' },
+          insumos: cloudRes.insumos || [],
+          products: cloudRes.products || [],
+          days: cloudRes.days || []
+        };
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+        fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2));
+      } else if (cloudRes && cloudRes.isVirgin) {
+        console.log('[Server] Cloud Firestore está completamente virgen. Inicializando base inicial...');
+        const localDb = readDb();
+        firestoreSync.saveAllToFirestore(localDb).catch(err => {
+          console.error('[Server] Falló la subida inicial a la base de datos:', err.message);
+        });
+      } else {
+        console.warn('[Server] Cloud Firestore no disponible o en espera; preservando datos locales sin sobreescribir la nube.');
+      }
+    }).catch(err => {
+      console.warn('[Server] Error inicializando persistencia en la nube:', err.message);
+    });
+  });
+}
+
+startServer();

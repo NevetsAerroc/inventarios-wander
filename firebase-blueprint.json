@@ -1,0 +1,141 @@
+{
+  "entities": {
+    "Setting": {
+      "title": "Setting",
+      "description": "Application settings and display preferences",
+      "type": "object",
+      "properties": {
+        "businessName": {
+          "type": "string",
+          "description": "Name of the restaurant or business"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency symbol or code"
+        },
+        "viewSettings": {
+          "type": "object",
+          "description": "Order and visibility configuration for categories, subgroups, products, and insumos"
+        }
+      }
+    },
+    "Insumo": {
+      "title": "Insumo",
+      "description": "Inventory supply and raw ingredient",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique supply identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Supply name"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit (unidad, kg, g, porcion)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Cost per unit"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Whether the supply is active"
+        }
+      },
+      "required": ["id", "name", "unit", "price"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Sold menu item and its recipe breakdown",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique product identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product display name"
+        },
+        "price": {
+          "type": "number",
+          "description": "Sale price in COP"
+        },
+        "category": {
+          "type": "string",
+          "description": "Main category (Hamburguesas, Perros, Bebidas, etc.)"
+        },
+        "subgroup": {
+          "type": "string",
+          "description": "Subgroup / size classification (Grandes / Súper, Pequeñas / Junior, etc.)"
+        },
+        "recipe": {
+          "type": "array",
+          "description": "List of insumos used per unit"
+        }
+      },
+      "required": ["id", "name", "price", "category", "subgroup"]
+    },
+    "Day": {
+      "title": "Day",
+      "description": "Daily inventory and sales audit record",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Date formatted as YYYY-MM-DD"
+        },
+        "initialInventory": {
+          "type": "array",
+          "description": "Starting physical count of supplies"
+        },
+        "receipts": {
+          "type": "array",
+          "description": "Supplies received during the day"
+        },
+        "finalInventory": {
+          "type": "array",
+          "description": "Closing physical count of supplies"
+        },
+        "sales": {
+          "type": "array",
+          "description": "Product units sold according to register POS/tirilla"
+        },
+        "transfers": {
+          "type": "array",
+          "description": "Supply transfers"
+        },
+        "adjustments": {
+          "type": "array",
+          "description": "Waste or inventory adjustments"
+        },
+        "observation": {
+          "type": "string",
+          "description": "Notes for the day"
+        }
+      },
+      "required": ["date"]
+    }
+  },
+  "firestore": {
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Business settings and view preferences"
+    },
+    "/insumos/{insumoId}": {
+      "schema": "Insumo",
+      "description": "Catalog of raw materials and supplies"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Catalog of sellable menu products and recipes"
+    },
+    "/days/{dayId}": {
+      "schema": "Day",
+      "description": "Daily sales and inventory logs"
+    }
+  }
+}

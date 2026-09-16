@@ -87,5 +87,39 @@
 @media (max-width: 640px) {
   .inventory-matrix {
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .inventory-card {
+    grid-template-columns: repeat(3, 1fr) 1.25fr;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+
+  .inventory-name {
+    grid-column: 1 / -1;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+
+  .inventory-name b {
+    font-size: 14px;
+    word-break: break-word;
   }
 }
+
+@media (max-width: 420px) {
+  .inventory-card {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .inventory-card label {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+  }
+}
+
