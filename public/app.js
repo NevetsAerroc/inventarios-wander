@@ -1412,98 +1412,228 @@ function renderCatalogEditor() {
   const box = $('#catalogEditor');
   if (!box) return;
   if (!state.editing) { box.innerHTML = ''; return; }
-
+  
   const entity = (state.editing.kind === 'insumo' ? state.db.insumos : state.db.products).find(x => x.id === state.editing.id);
   if (!entity) { state.editing = null; box.innerHTML = ''; return; }
-
+  
   if (state.editing.kind === 'insumo') {
-    box.innerHTML = `<article class="card editor">
-      <div class="card-header">
-        <h2>Editar Insumo: ${entity.name}</h2>
-        <div>
-          <button type="button" id="deleteEdit" class="btn danger-sm">Eliminar Insumo</button>
-          <button type="button" id="cancelEdit" class="btn outline">Cerrar Editor</button>
-        </div>
-      </div>
-      <form id="editInsumoForm" class="form inline-insumo">
-        <input name="name" list="editInsumoOptions" value="${entity.name}" required>
-        <datalist id="editInsumoOptions">${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}</datalist>
-        <input name="unit" value="${entity.unit}" required>
-        <input name="price" type="number" min="0" value="${entity.price}" required>
-        <button type="submit" class="btn primary">Guardar Insumo</button>
-      </form>
-    </article>`;
-    $('#editInsumoForm').onsubmit = saveEditedInsumo;
-  } else {
-    box.innerHTML = `<article class="card editor">
-      <div class="card-header">
-        <h2>Editar Producto y Receta: ${entity.name}</h2>
-        <div>
-          <button type="button" id="deleteEdit" class="btn danger-sm">Eliminar Producto</button>
-          <button type="button" id="cancelEdit" class="btn outline">Cerrar Editor</button>
-        </div>
-      </div>
-      <form id="editProductForm" class="form">
-        <label>
-          <span>Nombre del Producto</span>
-          <input name="name" list="editProductOptions" value="${entity.name}" required>
-          <datalist id="editProductOptions">${state.db.products.map(p => `<option value="${p.name}"></option>`).join('')}</datalist>
-        </label>
-        <label>
-          <span>Categoría / Grupo General</span>
-          <input name="category" list="editCategoryOptions" value="${entity.category || 'Hamburguesas'}" required>
-          <datalist id="editCategoryOptions">
-            <option value="Hamburguesas"></option>
-            <option value="Perros"></option>
-            <option value="Sándwiches"></option>
-            <option value="Bebidas"></option>
-            <option value="Adiciones y Entradas"></option>
-          </datalist>
-        </label>
-        <label>
-          <span>Subgrupo / Tamaño</span>
-          <input name="subgroup" list="editSubgroupOptions" value="${entity.subgroup || 'Medianas / Normales'}" required>
-          <datalist id="editSubgroupOptions">
-            <option value="Grandes / Súper"></option>
-            <option value="Medianas / Normales"></option>
-            <option value="Pequeñas / Junior"></option>
-            <option value="Especiales / Otros"></option>
-          </datalist>
-        </label>
-        <label>
-          <span>Precio de Venta COP</span>
-          <input name="price" type="number" min="0" value="${entity.price}" required>
-        </label>
-        <label class="sync-toggle">
-          <input name="directSale" type="checkbox" ${entity.directSale ? 'checked' : ''}>
-          Venta directa: no descuenta insumos de inventario
-        </label>
-        <div class="recipe-wide">
-          <div class="recipe-header">
-            <span>Ingredientes de la Receta</span>
-            <button type="button" id="addEditIngredient" class="btn text-btn">+ Añadir ingrediente</button>
+    const usingProducts = state.db.products.filter(p => p.recipe.some(r => r.insumoId === entity.id));
+    
+    box.innerHTML = `
+      <div class="modal-backdrop" role="dialog" aria-modal="true" style="z-index: 10000;">
+        <div class="modal-box" style="max-width:550px;">
+          <div class="modal-header">
+            <div>
+              <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Insumo</h3>
+              <p style="margin:3px 0 0 0; font-size:12px; color:var(--muted);">${entity.name}</p>
+            </div>
+            <button type="button" id="cancelEdit" class="modal-close-btn" title="Cerrar modal">&times;</button>
           </div>
-          <div id="editRecipeLines">${recipeLinesHtml(entity.recipe)}</div>
+          <div class="modal-body">
+            <form id="editInsumoForm" class="form inline-insumo" style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; gap:10px;">
+                <label style="flex:2;">
+                  <span>Nombre del Insumo</span>
+                  <input name="name" list="editInsumoOptions" value="${entity.name}" required>
+                  <datalist id="editInsumoOptions">${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}</datalist>
+                </label>
+                <label style="flex:1;">
+                  <span>Unidad</span>
+                  <input name="unit" value="${entity.unit}" required>
+                </label>
+                <label style="flex:1;">
+                  <span>Costo COP</span>
+                  <input name="price" type="number" min="0" value="${entity.price}" required>
+                </label>
+              </div>
+              
+              <div class="modal-section-title" style="margin-top:16px;">
+                <span>Recetas que usan este insumo</span>
+              </div>
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:4px;">
+                <div id="insumoRecipesList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px; max-height:200px; overflow-y:auto;">
+                  ${usingProducts.length === 0 ? '<div style="font-size:12px; color:#64748b;">No está asignado a ninguna receta.</div>' : usingProducts.map(p => {
+                    const r = p.recipe.find(x => x.insumoId === entity.id);
+                    return `
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+                        <span><b>${p.name}</b> <span style="color:var(--muted); margin-left:4px;">(Cantidad: ${r.quantity})</span></span>
+                        <button type="button" class="btn danger-sm remove-insumo-from-recipe" data-pid="${p.id}" style="padding:2px 6px; font-size:10px;">Quitar</button>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+                
+                <div style="display:flex; gap:6px; align-items:flex-end;">
+                  <label style="flex:2; margin:0;">
+                    <span style="font-size:11px;">Añadir a otra receta:</span>
+                    <input type="text" id="addInsumoToProduct" list="addInsumoToProductList" placeholder="Buscar producto..." style="padding:4px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; width:100%; height:30px;">
+                    <datalist id="addInsumoToProductList">
+                      ${state.db.products.filter(p => !p.recipe.some(r => r.insumoId === entity.id)).map(p => `<option value="${p.name}"></option>`).join('')}
+                    </datalist>
+                  </label>
+                  <label style="flex:1; margin:0;">
+                    <span style="font-size:11px;">Cantidad:</span>
+                    <input type="number" id="addInsumoQuantity" min="0.01" step="0.01" value="1" style="padding:4px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; width:100%; height:30px;">
+                  </label>
+                  <button type="button" id="addInsumoToRecipeBtn" class="btn primary" style="padding:4px 10px; font-size:12px; height:30px; white-space:nowrap;">+ Añadir</button>
+                </div>
+              </div>
+
+              <div class="modal-footer" style="margin-top:20px; padding:0; border:none; display:flex; justify-content:space-between;">
+                <button type="button" id="deleteEdit" class="btn danger-sm" style="flex:1; margin-right:10px;">Eliminar Insumo</button>
+                <button type="submit" class="btn primary" style="flex:2;">Guardar Insumo</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <button type="submit" class="btn primary">Guardar Producto y Receta</button>
-      </form>
-    </article>`;
+      </div>
+    `;
+
+    $('#editInsumoForm').onsubmit = saveEditedInsumo;
+    
+    document.querySelectorAll('.remove-insumo-from-recipe').forEach(btn => {
+      btn.onclick = () => {
+        const pid = btn.dataset.pid;
+        const prod = state.db.products.find(p => p.id === pid);
+        if (prod) {
+          prod.recipe = prod.recipe.filter(r => r.insumoId !== entity.id);
+          api(`/api/catalog/product/${prod.id}`, 'PUT', prod).then(x => {
+            state.db.insumos = x.insumos;
+            state.db.products = x.products;
+            renderCatalogEditor(); 
+            renderCatalogLists(); 
+            toast('Receta actualizada');
+          });
+        }
+      };
+    });
+    
+    $('#addInsumoToRecipeBtn').onclick = () => {
+      const pName = $('#addInsumoToProduct').value;
+      const qty = Number($('#addInsumoQuantity').value);
+      if (!pName) return toast('Seleccione un producto');
+      if (qty <= 0) return toast('La cantidad debe ser mayor a 0');
+      
+      const prod = state.db.products.find(p => p.name === pName);
+      if (!prod) return toast('Producto no encontrado');
+      if (prod) {
+        prod.recipe.push({ insumoId: entity.id, quantity: qty });
+        api(`/api/catalog/product/${prod.id}`, 'PUT', prod).then(x => {
+          state.db.insumos = x.insumos;
+          state.db.products = x.products;
+          renderCatalogEditor();
+          renderCatalogLists();
+          toast('Receta actualizada');
+        });
+      }
+    };
+
+  } else {
+    box.innerHTML = `
+      <div class="modal-backdrop" role="dialog" aria-modal="true" style="z-index: 10000;">
+        <div class="modal-box" style="max-width:550px;">
+          <div class="modal-header">
+            <div>
+              <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text);">Editar Producto y Receta</h3>
+              <p style="margin:3px 0 0 0; font-size:12px; color:var(--muted);">${entity.name}</p>
+            </div>
+            <button type="button" id="cancelEdit" class="modal-close-btn" title="Cerrar modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <datalist id="allInsumosList">
+              ${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.name}"></option>`).join('')}
+            </datalist>
+            <form id="editProductForm" class="form" style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; gap:10px;">
+                <label style="flex:2;">
+                  <span>Nombre del Producto</span>
+                  <input name="name" list="editProductOptions" value="${entity.name}" required>
+                  <datalist id="editProductOptions">${state.db.products.map(p => `<option value="${p.name}"></option>`).join('')}</datalist>
+                </label>
+                <label style="flex:1;">
+                  <span>Precio de Venta COP</span>
+                  <input name="price" type="number" min="0" value="${entity.price}" required>
+                </label>
+              </div>
+              
+              <div style="display:flex; gap:10px;">
+                <label style="flex:1;">
+                  <span>Categoría / Grupo General</span>
+                  <input name="category" list="editCategoryOptions" value="${entity.category || 'Hamburguesas'}" required>
+                  <datalist id="editCategoryOptions">
+                    <option value="Hamburguesas"></option>
+                    <option value="Perros"></option>
+                    <option value="Sándwiches"></option>
+                    <option value="Bebidas"></option>
+                    <option value="Adiciones y Entradas"></option>
+                  </datalist>
+                </label>
+                <label style="flex:1;">
+                  <span>Subgrupo / Tamaño</span>
+                  <input name="subgroup" list="editSubgroupOptions" value="${entity.subgroup || 'Medianas / Normales'}" required>
+                  <datalist id="editSubgroupOptions">
+                    <option value="Grandes / Súper"></option>
+                    <option value="Medianas / Normales"></option>
+                    <option value="Pequeñas / Junior"></option>
+                    <option value="Especiales / Otros"></option>
+                  </datalist>
+                </label>
+              </div>
+              
+              <label class="sync-toggle" style="margin:0;">
+                <input name="directSale" type="checkbox" ${entity.directSale ? 'checked' : ''}>
+                Venta directa: no descuenta insumos de inventario
+              </label>
+              
+              <div class="modal-section-title" style="margin-top:16px;">
+                <span>Ingredientes de la Receta</span>
+              </div>
+              
+              <div class="recipe-wide" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
+                <div id="editRecipeLines" style="display:flex; flex-direction:column;">${recipeLinesHtml(entity.recipe)}</div>
+                <div style="margin-top:10px;">
+                  <button type="button" id="addEditIngredient" class="btn outline" style="padding:4px 10px; font-size:12px;">+ Añadir insumo</button>
+                </div>
+              </div>
+              
+              <div class="modal-footer" style="margin-top:20px; padding:0; border:none; display:flex; justify-content:space-between;">
+                <button type="button" id="deleteEdit" class="btn danger-sm" style="flex:1; margin-right:10px;">Eliminar Producto</button>
+                <button type="submit" class="btn primary" style="flex:2;">Guardar Producto y Receta</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
     bindEditRecipe();
     $('#editProductForm').onsubmit = saveEditedProduct;
   }
-
+  
   $('#cancelEdit').onclick = () => { state.editing = null; renderCatalogEditor(); };
   $('#deleteEdit').onclick = deleteEdited;
+  
+  // Close on backdrop click
+  const backdrop = box.querySelector('.modal-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        state.editing = null;
+        renderCatalogEditor();
+      }
+    });
+  }
 }
 
 function recipeLinesHtml(recipe) {
-  return recipe.map(r => `
+  return recipe.map(r => {
+    const insumo = state.db.insumos.find(i => i.id === r.insumoId);
+    return `
     <span class="recipe-line">
-      <select>${state.db.insumos.filter(i => i.active !== false).map(i => `<option value="${i.id}" ${i.id === r.insumoId ? 'selected' : ''}>${i.name}</option>`).join('')}</select>
-      <input type="number" min="0.01" step="0.01" value="${r.quantity}">
+      <input type="text" class="insumo-search" list="allInsumosList" placeholder="Buscar insumo..." value="${insumo ? insumo.name : ''}" required>
+      <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required>
       <button type="button" class="removeIngredient">×</button>
     </span>
-  `).join('');
+  `}).join('');
 }
 
 function bindEditRecipe() {
@@ -1534,10 +1664,14 @@ async function saveEditedInsumo(e) {
 async function saveEditedProduct(e) {
   e.preventDefault();
   const f = new FormData(e.target);
-  const recipe = [...$('#editRecipeLines').querySelectorAll('.recipe-line')].map(x => ({
-    insumoId: x.querySelector('select').value,
-    quantity: Number(x.querySelector('input').value)
-  }));
+  const recipe = [...$('#editRecipeLines').querySelectorAll('.recipe-line')].map(x => {
+    const insumoName = x.querySelector('.insumo-search').value;
+    const insumo = state.db.insumos.find(i => i.name === insumoName);
+    return {
+      insumoId: insumo ? insumo.id : null,
+      quantity: Number(x.querySelector('.quantity-input').value)
+    };
+  }).filter(r => r.insumoId);
   const x = await api(`/api/catalog/product/${state.editing.id}`, 'PUT', {
     name: f.get('name'),
     category: f.get('category'),

@@ -684,24 +684,24 @@
 }
 
 .is-dragging {
-  opacity: 0.4 !important;
-  background: #fef08a !important;
-  outline: 2px dashed #ca8a04 !important;
+  opacity: 0.6 !important;
+  background: #e0f2fe !important;
+  outline: 2px dashed #38bdf8 !important;
   outline-offset: -2px;
 }
 
 .drag-over-top {
-  border-top: 3px solid #0d9488 !important;
+  border-top: 4px solid #38bdf8 !important;
 }
 
 .drag-over-bottom {
-  border-bottom: 3px solid #0d9488 !important;
+  border-bottom: 4px solid #38bdf8 !important;
 }
 
 .drag-over-card {
-  outline: 2px solid #0d9488 !important;
+  outline: 4px solid #38bdf8 !important;
   outline-offset: 2px;
-  background-color: #f0fdfa !important;
+  background-color: #f0f9ff !important;
 }
 
 /* Subgroup Audit Box Enhancements */
