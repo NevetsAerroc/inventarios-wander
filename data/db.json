@@ -671,13 +671,6 @@
       "unit": "unidad",
       "price": 0,
       "active": true
-    },
-    {
-      "id": "i_1787590620164_mnzrk",
-      "name": "Queso Libras",
-      "unit": "unidad",
-      "price": 0,
-      "active": true
     }
   ],
   "products": [
@@ -686,10 +679,6 @@
       "name": "COMBO 1",
       "price": 32900,
       "recipe": [
-        {
-          "insumoId": "i_1787072173267_xrch4",
-          "quantity": 1
-        },
         {
           "insumoId": "i_1787072173265_xxen8",
           "quantity": 1
@@ -700,6 +689,10 @@
         },
         {
           "insumoId": "i_1787072173266_ftzpo",
+          "quantity": 1
+        },
+        {
+          "insumoId": "i_1787072173267_xrch4",
           "quantity": 1
         }
       ],
@@ -713,15 +706,15 @@
       "price": 26000,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_xxen8",
+          "insumoId": "i_1787072173265_k0h2o",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_1xgao",
+          "insumoId": "i_1787072173265_k0h2o",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_z94b4",
+          "insumoId": "i_1787072173265_k0h2o",
           "quantity": 1
         }
       ],
@@ -740,8 +733,8 @@
         }
       ],
       "directSale": false,
-      "category": "ASADOS",
-      "subgroup": "Cerdo"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787069941852_i6z76",
@@ -749,11 +742,11 @@
       "price": 19900,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_c1o8t",
+          "insumoId": "i_1787069941851_bnqkv",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_iqk2o",
+          "insumoId": "i_1787069941851_fp4cx",
           "quantity": 1.5
         }
       ],
@@ -765,25 +758,16 @@
       "id": "p_1787069941852_7o8sl",
       "name": "GASEOSA 1.5",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_durgo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192142_aehzc",
       "name": "LIMONADA DE COCO",
       "price": 6500,
       "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        },
         {
           "insumoId": "i_1787072173268_zc9qo",
           "quantity": 1
@@ -799,7 +783,7 @@
       "price": 2000,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -808,7 +792,7 @@
       "price": 55000,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -823,7 +807,7 @@
       ],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192142_pthjt",
@@ -832,7 +816,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192142_eslka",
@@ -841,7 +825,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192142_iitns",
@@ -850,7 +834,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192142_ut04a",
@@ -859,7 +843,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192142_1viac",
@@ -868,7 +852,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192142_02orp",
@@ -876,13 +860,13 @@
       "price": 18400,
       "recipe": [
         {
-          "insumoId": "i_1787072173267_durgo",
+          "insumoId": "i_1787072173267_9k6g0",
           "quantity": 1
         }
       ],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192142_w49oq",
@@ -911,15 +895,10 @@
       "id": "p_1787072192142_xr14k",
       "name": "GASEOSA 2 LITROS",
       "price": 0,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_9k6g0",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192142_xdr86",
@@ -928,7 +907,7 @@
       "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192142_oiljn",
@@ -943,15 +922,10 @@
       "id": "p_1787072192142_zk64t",
       "name": "ASADA DE RES DE LLEVAR",
       "price": 26500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_fyfmu",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "ASADOS",
-      "subgroup": "RES"
+      "subgroup": "-"
     },
     {
       "id": "p_1787072192142_9gjrs",
@@ -965,7 +939,7 @@
       ],
       "directSale": false,
       "category": "ASADOS",
-      "subgroup": "Cerdo"
+      "subgroup": "-"
     },
     {
       "id": "p_1787072192142_t6vdr",
@@ -979,7 +953,7 @@
       ],
       "directSale": false,
       "category": "ASADOS",
-      "subgroup": "PECHUGA"
+      "subgroup": "-"
     },
     {
       "id": "p_1787072192142_d3ttu",
@@ -1045,10 +1019,6 @@
         {
           "insumoId": "i_1787072173273_jfobd",
           "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173273_2lq8e",
-          "quantity": 1
         }
       ],
       "directSale": false,
@@ -1061,19 +1031,19 @@
       "price": 20000,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_jd6zi",
-          "quantity": 1
-        },
-        {
           "insumoId": "i_1787072173265_ejqvh",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173266_wajw5",
+          "insumoId": "i_1787072173265_jd6zi",
           "quantity": 1
         },
         {
           "insumoId": "i_1787072173273_2lq8e",
+          "quantity": 1
+        },
+        {
+          "insumoId": "i_1787072173266_wajw5",
           "quantity": 1
         }
       ],
@@ -1091,11 +1061,11 @@
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173273_2lq8e",
+          "insumoId": "i_1787072173265_iqk2o",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_iqk2o",
+          "insumoId": "i_1787072173273_2lq8e",
           "quantity": 1
         }
       ],
@@ -1109,11 +1079,11 @@
       "price": 20000,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_jd6zi",
+          "insumoId": "i_1787072173265_ejqvh",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_ejqvh",
+          "insumoId": "i_1787072173265_jd6zi",
           "quantity": 1
         },
         {
@@ -1129,29 +1099,19 @@
       "id": "p_1787072192144_i2rrh",
       "name": "PERRITO INFANTIL",
       "price": 20000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173273_2lq8e",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Perros",
-      "subgroup": "Junior"
+      "category": "Hamburguesas",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192144_3vwq6",
       "name": "INFANTIL NUGGETS",
       "price": 20000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173273_2lq8e",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "NUGETS",
-      "subgroup": "-"
+      "category": "Hamburguesas",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192144_g3mz9",
@@ -1173,12 +1133,12 @@
       "price": 14500,
       "recipe": [
         {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        },
-        {
           "insumoId": "i_1787072173265_iqk2o",
           "quantity": 2
+        },
+        {
+          "insumoId": "i_1787072173266_ftzpo",
+          "quantity": 1
         }
       ],
       "directSale": false,
@@ -1204,8 +1164,8 @@
       "name": "ADICION DE SALSA",
       "price": 5000,
       "recipe": [],
-      "directSale": true,
-      "category": "Adiciones",
+      "directSale": false,
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -1214,7 +1174,7 @@
       "price": 5000,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -1270,8 +1230,8 @@
         }
       ],
       "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "category": "Adiciones y Entradas",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192145_plrlg",
@@ -1279,7 +1239,7 @@
       "price": 4500,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -1293,7 +1253,7 @@
         }
       ],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -1302,35 +1262,25 @@
       "price": 3000,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192145_3w6es",
       "name": "ADICION DE POLLO DESMECHADO JR",
       "price": 6000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_1f2gx",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192145_aciom",
       "name": "ADICION DE QUESO 1 LONCHA",
       "price": 2500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
@@ -1339,33 +1289,23 @@
       "price": 6000,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192146_bp74p",
       "name": "ADICION DE SALCHICHA LONG",
       "price": 4500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
-      "subgroup": "Especiales / Otros"
+      "category": "Perros",
+      "subgroup": "-"
     },
     {
       "id": "p_1787072192146_3qha1",
       "name": "JUGOS EN LECHE",
       "price": 5800,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
       "subgroup": "Especiales / Otros"
@@ -1374,12 +1314,7 @@
       "id": "p_1787072192146_ucca1",
       "name": "JUGOS EN AGUA",
       "price": 5000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
       "subgroup": "Especiales / Otros"
@@ -1388,16 +1323,7 @@
       "id": "p_1787072192146_hlt46",
       "name": "MALTEADA FRESA",
       "price": 11000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173268_2z0lv",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
       "subgroup": "Especiales / Otros"
@@ -1406,16 +1332,7 @@
       "id": "p_1787072192146_pktv0",
       "name": "MALTEADA DE VAINILLA",
       "price": 11000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173268_2z0lv",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
       "subgroup": "Especiales / Otros"
@@ -1424,16 +1341,7 @@
       "id": "p_1787072192146_dg3eb",
       "name": "MALTEADA DE BROWNIE",
       "price": 11000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173268_bl4dx",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173268_2z0lv",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
       "subgroup": "Especiales / Otros"
@@ -1442,197 +1350,109 @@
       "id": "p_1787072192147_1pnco",
       "name": "SUPER ESPECIAL JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192147_876a5",
       "name": "PERRO JUNIOR DE LLEVAR",
       "price": 11900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192147_3hqwt",
       "name": "PEQUEÑA DE LLEVAR",
       "price": 15900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192147_0oq2q",
       "name": "COMBO 4 DE LLEVAR",
       "price": 22900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192147_doywa",
       "name": "PEQUEÑA",
       "price": 15900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192147_el23h",
       "name": "COMBO 4",
       "price": 22900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_wajw5",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_jd6zi",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192147_nd61o",
       "name": "PERRO JUNIOR",
       "price": 11900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192147_fpcni",
       "name": "GASEOSA 350",
       "price": 4500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_xrch4",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192148_0o11h",
       "name": "SUPER ESPECIAL NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192149_qagjt",
       "name": "PERRO JUNIOR CON TOCINETA DE LLEVAR",
       "price": 19900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192149_38lt6",
       "name": "MEDIANA DE LLEVAR",
       "price": 21900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192149_i31fh",
       "name": "COMBO 4 AGRANDADO DE LLEVAR",
       "price": 25900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192149_i4a0o",
@@ -1640,11 +1460,11 @@
       "price": 21900,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_xxen8",
+          "insumoId": "i_1787072173265_1xgao",
           "quantity": 1
         },
         {
-          "insumoId": "i_1787072173265_1xgao",
+          "insumoId": "i_1787072173265_xxen8",
           "quantity": 1
         }
       ],
@@ -1656,80 +1476,43 @@
       "id": "p_1787072192149_e6t45",
       "name": "COMBO 4 AGRANDADO",
       "price": 25900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192149_yulmw",
       "name": "PERRO JUNIOR CON TOCINETA",
       "price": 19900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192150_i0q09",
       "name": "GASEOSAS DE LLEVAR",
       "price": 5500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_j1375",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192150_kikpr",
       "name": "ROPA VIEJA JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192150_ms93x",
       "name": "PERRO SUPER DE LLEVAR",
       "price": 19900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Grandes / Súper"
@@ -1738,19 +1521,10 @@
       "id": "p_1787072192150_g8p04",
       "name": "GRANDE DE LLEVAR",
       "price": 26500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Grandes"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192150_10ijx",
@@ -1758,68 +1532,37 @@
       "price": 32900,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
+          "insumoId": "i_1787069941851_1pplg",
           "quantity": 1
         }
       ],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192150_fa63m",
       "name": "GRANDE",
       "price": 26500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Grandes"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192150_fjys4",
       "name": "ROPA VIEJA NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192150_57tos",
       "name": "PERRO SÚPER CON TOCINETA DE LLEVAR",
       "price": 22900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Especiales / Otros"
@@ -1830,64 +1573,37 @@
       "price": 26000,
       "recipe": [
         {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_z94b4",
+          "insumoId": "i_1787069941851_1pplg",
           "quantity": 1
         }
       ],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192151_kw8z1",
       "name": "COMBO 3 DE LLEVAR",
       "price": 30900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192151_kelba",
       "name": "COMBO 2 JUNIOR",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192151_53cgf",
       "name": "PERRO SUPER CON TOTO",
       "price": 22900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Grandes / Súper"
@@ -1899,82 +1615,49 @@
       "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192151_stnut",
       "name": "HAMBUR RANCHERA DE LLEVAR",
       "price": 24500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192151_m30j0",
       "name": "PERRO JR TOTO RAPPI",
       "price": 17400,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192151_2m0xh",
       "name": "CORDERO JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192152_g6xb9",
       "name": "COMBO 2 AGRANDADO DE LLEVAR",
       "price": 29900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192152_1g86f",
       "name": "POLLO APANADO",
       "price": 24500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_z94b4",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -1983,15 +1666,10 @@
       "id": "p_1787072192152_9lv00",
       "name": "COMBO 2 AGRANDADO",
       "price": 29900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192152_r8uo1",
@@ -2000,54 +1678,31 @@
       "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192153_9izri",
       "name": "PERRO JR RAPPI",
       "price": 15600,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192153_rcy16",
       "name": "CORDERO NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192153_e59dk",
       "name": "POLLO APANADO DE LLEVAR",
       "price": 24500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_z94b4",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2056,57 +1711,37 @@
       "id": "p_1787072192153_ieq0y",
       "name": "COMBO 2 JUNIOR DE LLEVAR",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "SANDWICH",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192153_zsa8q",
       "name": "HAMBURGUESA RANCHERA",
       "price": 24500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
-    },
-    {
-      "id": "p_1787072192153_hlfu4",
-      "name": "COMBO 3",
-      "price": 30900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
     },
     {
+      "id": "p_1787072192153_hlfu4",
+      "name": "COMBO 3",
+      "price": 30900,
+      "recipe": [],
+      "directSale": false,
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
+    },
+    {
       "id": "p_1787072192153_bvfb5",
       "name": "MR TEA",
       "price": 5500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_d5ssj",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Bebidas",
-      "subgroup": "Gaseosas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192154_ez01x",
@@ -2121,34 +1756,16 @@
       "id": "p_1787072192154_8q8f4",
       "name": "MEDIANA RAPPI",
       "price": 25000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192154_54rbc",
       "name": "PERRO SUPER RAPPI",
       "price": 21800,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Grandes / Súper"
@@ -2157,59 +1774,28 @@
       "id": "p_1787072192154_vrnt4",
       "name": "POLLO JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192154_cs963",
       "name": "COMBO 5 DE LLEVAR",
       "price": 37900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Grandes"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192155_hb2ba",
       "name": "COMBO 5",
-      "price": 37900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "price": 22000,
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Grandes"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192155_9ujfx",
@@ -2217,37 +1803,23 @@
       "price": 5500,
       "recipe": [],
       "directSale": false,
-      "category": "Adiciones",
+      "category": "Adiciones y Entradas",
       "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192155_0cgzh",
       "name": "PEQUEÑA RAPPI",
       "price": 18500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192156_iavzv",
       "name": "PERRO SUPER TOTO RAPPI",
       "price": 26500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Grandes / Súper"
@@ -2256,110 +1828,52 @@
       "id": "p_1787072192156_janje",
       "name": "POLLO NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192157_z3sbp",
       "name": "COMBO 6 PERRO JR DE LLEVAR",
       "price": 19900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_wajw5",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192157_f56o4",
       "name": "COMBO 6",
       "price": 19900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_wajw5",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Perros",
-      "subgroup": "Junior"
+      "category": "Hamburguesas",
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192157_r6bui",
       "name": "GRANDE RAPPI",
       "price": 31500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192157_h1qma",
       "name": "HAWAIANO JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192158_avsfv",
       "name": "COMBO 7 PERRO SUPER TOTO DE LLEVAR",
       "price": 33900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
       "subgroup": "Grandes / Súper"
@@ -2368,20 +1882,7 @@
       "id": "p_1787072192158_y01xl",
       "name": "COMBO 7",
       "price": 33900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2390,70 +1891,34 @@
       "id": "p_1787072192158_2r76x",
       "name": "3CARNES RAPPI",
       "price": 33500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_z94b4",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192158_ccfls",
       "name": "HAWAIANO NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192158_iv0wp",
       "name": "COMBO 8 PERRO JR TOTO DE LLEVAR",
       "price": 25900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Perros",
-      "subgroup": "Junior"
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192158_83291",
       "name": "COMBO 8",
       "price": 25900,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2462,16 +1927,7 @@
       "id": "p_1787072192158_bwivy",
       "name": "POLLO APANADO RAPPI",
       "price": 25500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_z94b4",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2480,16 +1936,7 @@
       "id": "p_1787072192158_abch1",
       "name": "COMBO 8 RAPPI",
       "price": 24500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2498,15 +1945,10 @@
       "id": "p_1787072192159_w3was",
       "name": "RANCHERO JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192159_fwrll",
@@ -2521,55 +1963,28 @@
       "id": "p_1787072192159_rtzz3",
       "name": "COMBO 4 RAPPI",
       "price": 28200,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_ejqvh",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_wajw5",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Pequeñas"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192159_27901",
       "name": "RANCHERO NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192160_afq7w",
       "name": "COMBO 1 RAPPI",
       "price": 40000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_xxen8",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_1xgao",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Medianas"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192160_kwb9u",
@@ -2584,15 +1999,10 @@
       "id": "p_1787072192160_65pno",
       "name": "ESPECIAL NORMAL",
       "price": 20000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192160_gook6",
@@ -2607,29 +2017,19 @@
       "id": "p_1787072192160_kx7f5",
       "name": "COMBO 2 AGRANDADO RAPPI",
       "price": 28400,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192161_eqwnr",
       "name": "ESPECIAL JUNIOR",
       "price": 10500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192161_6ayj4",
@@ -2644,148 +2044,79 @@
       "id": "p_1787072192161_9hvwj",
       "name": "COMBO 2 RAPPI",
       "price": 29500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192161_4xm0v",
       "name": "JAMÓN JUNIOR",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192161_eg9aa",
       "name": "COMBO 3 RAPPI",
       "price": 28200,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192161_dgjqw",
       "name": "JAMÓN NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192162_a8ogs",
       "name": "COMBO 5 RAPPI",
       "price": 45500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_k0h2o",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_7k66q",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192162_zcolp",
       "name": "VEGETARIANO JUNIOR.",
       "price": 11500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
+      "category": "Hamburguesas",
+      "subgroup": "Pequeñas / Junior"
     },
     {
       "id": "p_1787072192162_mpzja",
       "name": "COMBO 6 RAPPI",
       "price": 0,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jey36",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_wajw5",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "Perros",
-      "subgroup": "Junior"
+      "category": "Hamburguesas",
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192162_kkotu",
       "name": "VEGETARIANO NORMAL",
       "price": 21000,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Hamburguesas",
+      "subgroup": "Medianas / Normales"
     },
     {
       "id": "p_1787072192163_x6r4s",
       "name": "COMBO 7 RAPPI",
       "price": 40500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_c1o8t",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173266_ftzpo",
-          "quantity": 1
-        },
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
@@ -2794,12 +2125,7 @@
       "id": "p_1787072192163_5wutl",
       "name": "SANDWICH ROPA VIEJA JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2808,26 +2134,16 @@
       "id": "p_1787072192163_w4mfa",
       "name": "SANDWICH ROPA VIEJA NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192163_brtsf",
       "name": "SANDWICH SPECIAL JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2836,26 +2152,16 @@
       "id": "p_1787072192163_6bj8i",
       "name": "SANDWICH SPECIAL NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192163_odh0z",
       "name": "SANDWICH POLLO JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2864,26 +2170,16 @@
       "id": "p_1787072192164_3d1o9",
       "name": "SANDWICH POLLO NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192164_vppvj",
       "name": "SANDWICH CORDERO JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2892,26 +2188,16 @@
       "id": "p_1787072192164_5614o",
       "name": "SANDWICH CORDERO NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192164_ll83y",
       "name": "SANDWICH JAMON JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2920,26 +2206,16 @@
       "id": "p_1787072192165_sbzd1",
       "name": "SANDWICH JAMON NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192166_2gq4j",
       "name": "SANDWICH VEGETARIANO JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2948,26 +2224,16 @@
       "id": "p_1787072192166_zd854",
       "name": "SANDWICH VEGETARIANO NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Especiales / Otros"
     },
     {
       "id": "p_1787072192166_91bd9",
       "name": "SANDWICH HAWAIANO JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -2976,54 +2242,34 @@
       "id": "p_1787072192167_9st4p",
       "name": "SANDWICH HAWAIANO NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
-    },
-    {
-      "id": "p_1787072192167_wh2y9",
-      "name": "SANDWICH SUPER SPECIAL JR RAPPI",
-      "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
     },
     {
+      "id": "p_1787072192167_wh2y9",
+      "name": "SANDWICH SUPER SPECIAL JR RAPPI",
+      "price": 13500,
+      "recipe": [],
+      "directSale": false,
+      "category": "Sándwiches",
+      "subgroup": "Grandes / Súper"
+    },
+    {
       "id": "p_1787072192167_vp8z1",
       "name": "SANDWICH SUPER SPECIAL NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
+      "category": "Sándwiches",
+      "subgroup": "Grandes / Súper"
     },
     {
       "id": "p_1787072192168_1rf74",
       "name": "SANDWICH RANCHERO JR RAPPI",
       "price": 13500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_as590",
-          "quantity": 1
-        }
-      ],
+      "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
       "subgroup": "Especiales / Otros"
@@ -3032,265 +2278,9 @@
       "id": "p_1787072192168_nuwtj",
       "name": "SANDWICH RANCHERO NR RAPPI",
       "price": 23500,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_jkeci",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "SANDWICH",
-      "subgroup": "Normal"
-    },
-    {
-      "id": "p_1787533728101_coy0s",
-      "name": "CARNE DE RES",
-      "price": 19,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728103_8vuuv",
-      "name": "CORDERO GRANDE",
-      "price": 20,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728104_t676n",
-      "name": "COMBO PERRO ESPECIAL",
-      "price": 24,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
-      "directSale": false,
-      "category": "Perros",
-      "subgroup": "Grandes / Súper"
-    },
-    {
-      "id": "p_1787533728105_umos9",
-      "name": "PARRILLADA CERDO + POLLO",
-      "price": 31,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728105_ccgkq",
-      "name": "GASEOSA 1.5 LITROS",
-      "price": 6,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_durgo",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Bebidas",
-      "subgroup": "Gaseosas"
-    },
-    {
-      "id": "p_1787533728106_wq8y5",
-      "name": "COMBO HAMBURGUESA MEDIANA",
-      "price": 25,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728107_lnr10",
-      "name": "GASEOSA 350 ML",
-      "price": 3,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_xrch4",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Bebidas",
-      "subgroup": "Gaseosas"
-    },
-    {
-      "id": "p_1787533728108_kok3i",
-      "name": "COMBO HAMBURGUESA PEQUEÑA",
-      "price": 18,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728109_cxc39",
-      "name": "PARRILLADA RES + COSTILLA LLEVAR",
-      "price": 34,
-      "recipe": [],
-      "directSale": false,
-      "category": "Adiciones y Entradas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728109_xgdqb",
-      "name": "PARRILLADA RES + COSTILLA",
-      "price": 34,
-      "recipe": [],
-      "directSale": false,
-      "category": "Adiciones y Entradas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728111_slaen",
-      "name": "PARRILLADA RES + CERDO",
-      "price": 34,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728111_0ys7o",
-      "name": "PARRILLADA CERDO + COSTILLA LLEVAR",
-      "price": 32,
-      "recipe": [],
-      "directSale": false,
-      "category": "Adiciones y Entradas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728112_734b4",
-      "name": "PARRILLADA CERDO + COSTILLA",
-      "price": 31,
-      "recipe": [],
-      "directSale": false,
-      "category": "Adiciones y Entradas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728113_r7z89",
-      "name": "COMBO POLLO GRANDE",
-      "price": 29,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728114_94b6u",
-      "name": "ASADO FRANCESA",
-      "price": 4,
       "recipe": [],
       "directSale": false,
       "category": "Sándwiches",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728114_8rlbn",
-      "name": "PERRO SENCILLO",
-      "price": 7,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Perros",
-      "subgroup": "Junior"
-    },
-    {
-      "id": "p_1787533728115_bhdsa",
-      "name": "PAPA A LA FRANCESA",
-      "price": 7,
-      "recipe": [],
-      "directSale": false,
-      "category": "PAPAS",
-      "subgroup": "-"
-    },
-    {
-      "id": "p_1787533728116_7xwye",
-      "name": "HAWAIANO GRANDE",
-      "price": 20,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728116_nu7rf",
-      "name": "POLLO GRANDE",
-      "price": 20,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
-      "subgroup": "Especiales / Otros"
-    },
-    {
-      "id": "p_1787533728117_fwizn",
-      "name": "COSTILLA A LA BBQ",
-      "price": 17,
-      "recipe": [],
-      "directSale": false,
-      "category": "ASADOS",
-      "subgroup": "COSTILLAS"
-    },
-    {
-      "id": "p_1787533728118_ifwu4",
-      "name": "COMBO PERRO SENCILLO",
-      "price": 16,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Perros",
-      "subgroup": "Junior"
-    },
-    {
-      "id": "p_1787533728118_5uc38",
-      "name": "PERRO ESPECIAL",
-      "price": 15,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173265_iqk2o",
-          "quantity": 1.5
-        }
-      ],
-      "directSale": false,
-      "category": "Perros",
-      "subgroup": "Grandes / Súper"
-    },
-    {
-      "id": "p_1787533728119_70y69",
-      "name": "AGUA BOTELLA 500ML",
-      "price": 3,
-      "recipe": [
-        {
-          "insumoId": "i_1787072173267_761xe",
-          "quantity": 1
-        }
-      ],
-      "directSale": false,
-      "category": "Bebidas",
-      "subgroup": "Gaseosas"
-    },
-    {
-      "id": "p_1787533728120_v9rcw",
-      "name": "RECARGO DE DOMICILO",
-      "price": 3,
-      "recipe": [],
-      "directSale": false,
-      "category": "Hamburguesas",
       "subgroup": "Especiales / Otros"
     }
   ],
@@ -5224,610 +4214,8 @@
       "createdAt": "2026-08-22T03:04:27.497Z"
     },
     {
-      "id": "d_1787532567548_3q2bi",
-      "date": "2026-08-24",
-      "opening": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
-      },
-      "physical": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
-      },
-      "movements": [],
-      "sales": [
-        {
-          "productId": "p_1787072192147_0oq2q",
-          "quantity": 11,
-          "productName": "COMBO 4 DE LLEVAR",
-          "price": 22900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_ejqvh",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192147_3hqwt",
-          "quantity": 9,
-          "productName": "PEQUEÑA DE LLEVAR",
-          "price": 15900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_ejqvh",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192152_g6xb9",
-          "quantity": 3,
-          "productName": "COMBO 2 AGRANDADO DE LLEVAR",
-          "price": 29900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192147_1pnco",
-          "quantity": 7,
-          "productName": "SUPER ESPECIAL JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192150_g8p04",
-          "quantity": 4,
-          "productName": "GRANDE DE LLEVAR",
-          "price": 26500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_k0h2o",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_7k66q",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787069941851_k6y3n",
-          "quantity": 3,
-          "productName": "COMBO 1",
-          "price": 32900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173267_xrch4",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_xxen8",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_1xgao",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787069941852_7o8sl",
-          "quantity": 5,
-          "productName": "GASEOSA 1.5",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192142_zk64t",
-          "quantity": 2,
-          "productName": "ASADA DE RES DE LLEVAR",
-          "price": 26500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173266_fyfmu",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192167_vp8z1",
-          "quantity": 2,
-          "productName": "SANDWICH SUPER SPECIAL NR RAPPI",
-          "price": 23500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_jkeci",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192149_38lt6",
-          "quantity": 2,
-          "productName": "MEDIANA DE LLEVAR",
-          "price": 21900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_xxen8",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_1xgao",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192154_cs963",
-          "quantity": 1,
-          "productName": "COMBO 5 DE LLEVAR",
-          "price": 37900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_k0h2o",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_7k66q",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192155_0cgzh",
-          "quantity": 2,
-          "productName": "PEQUEÑA RAPPI",
-          "price": 18500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_ejqvh",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192154_vrnt4",
-          "quantity": 3,
-          "productName": "POLLO JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192150_kikpr",
-          "quantity": 3,
-          "productName": "ROPA VIEJA JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192142_d3ttu",
-          "quantity": 1,
-          "productName": "COSTILLAS DE LLEVAR",
-          "price": 29900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173267_et4t3",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787069941852_5pfu0",
-          "quantity": 1,
-          "productName": "3 CARNES",
-          "price": 26000,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_xxen8",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_1xgao",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_z94b4",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192154_8q8f4",
-          "quantity": 1,
-          "productName": "MEDIANA RAPPI",
-          "price": 25000,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_xxen8",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_1xgao",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192147_876a5",
-          "quantity": 2,
-          "productName": "PERRO JUNIOR DE LLEVAR",
-          "price": 11900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_jey36",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192151_kelba",
-          "quantity": 1,
-          "productName": "COMBO 2 JUNIOR",
-          "price": 23500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192150_fjys4",
-          "quantity": 1,
-          "productName": "ROPA VIEJA NORMAL",
-          "price": 21000,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_jkeci",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192148_0o11h",
-          "quantity": 1,
-          "productName": "SUPER ESPECIAL NORMAL",
-          "price": 21000,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_jkeci",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192144_3vwq6",
-          "quantity": 1,
-          "productName": "INFANTIL NUGGETS",
-          "price": 20000,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173273_2lq8e",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192147_fpcni",
-          "quantity": 4,
-          "productName": "GASEOSA 350",
-          "price": 4500,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192144_z6ic7",
-          "quantity": 1,
-          "productName": "SALCHIPAPA",
-          "price": 14500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_iqk2o",
-              "quantity": 2
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192151_2m0xh",
-          "quantity": 1,
-          "productName": "CORDERO JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192159_w3was",
-          "quantity": 1,
-          "productName": "RANCHERO JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192150_i0q09",
-          "quantity": 1,
-          "productName": "GASEOSAS DE LLEVAR",
-          "price": 5500,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192144_fkwi0",
-          "quantity": 1,
-          "productName": "ADICION DE SALSA",
-          "price": 5000,
-          "directSale": false,
-          "recipeSnapshot": []
-        }
-      ],
-      "payments": {
-        "cash": 0,
-        "nequi": 0,
-        "bancolombia": 0,
-        "credit": 0,
-        "vouchers": 0
-      },
-      "expenses": [],
-      "createdAt": "2026-08-24T00:49:27.548Z"
-    },
-    {
-      "id": "d_1787532579197_om2nj",
-      "date": "2026-08-23",
+      "id": "d_1789427117212_ihl5x",
+      "date": "2026-09-14",
       "opening": {
         "i_1787069941851_ugxir": 0,
         "i_1787069941851_vpp11": 30,
@@ -6023,728 +4411,6 @@
         "i_1787072173273_z4ax5": 0,
         "i_1787072173273_2lq8e": 0,
         "i_1787111740968_sf2do": 0
-      },
-      "movements": [],
-      "sales": [
-        {
-          "productId": "p_1787072192149_38lt6",
-          "quantity": 13,
-          "productName": "MEDIANA DE LLEVAR",
-          "price": 21900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_xxen8",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_1xgao",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728101_coy0s",
-          "quantity": 6,
-          "productName": "CARNE DE RES",
-          "price": 19,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192161_eqwnr",
-          "quantity": 14,
-          "productName": "ESPECIAL JUNIOR",
-          "price": 10500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728103_8vuuv",
-          "quantity": 5,
-          "productName": "CORDERO GRANDE",
-          "price": 20,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192147_3hqwt",
-          "quantity": 10,
-          "productName": "PEQUEÑA DE LLEVAR",
-          "price": 15900,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_ejqvh",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728104_t676n",
-          "quantity": 3,
-          "productName": "COMBO PERRO ESPECIAL",
-          "price": 24,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728105_umos9",
-          "quantity": 2,
-          "productName": "PARRILLADA CERDO + POLLO",
-          "price": 31,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728105_ccgkq",
-          "quantity": 9,
-          "productName": "GASEOSA 1.5 LITROS",
-          "price": 6,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728106_wq8y5",
-          "quantity": 2,
-          "productName": "COMBO HAMBURGUESA MEDIANA",
-          "price": 25,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192150_g8p04",
-          "quantity": 2,
-          "productName": "GRANDE DE LLEVAR",
-          "price": 26500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_k0h2o",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_7k66q",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728107_lnr10",
-          "quantity": 13,
-          "productName": "GASEOSA 350 ML",
-          "price": 3,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728108_kok3i",
-          "quantity": 2,
-          "productName": "COMBO HAMBURGUESA PEQUEÑA",
-          "price": 18,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728109_cxc39",
-          "quantity": 1,
-          "productName": "PARRILLADA RES + COSTILLA LLEVAR",
-          "price": 34,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728109_xgdqb",
-          "quantity": 1,
-          "productName": "PARRILLADA RES + COSTILLA",
-          "price": 34,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728111_slaen",
-          "quantity": 1,
-          "productName": "PARRILLADA RES + CERDO",
-          "price": 34,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728111_0ys7o",
-          "quantity": 1,
-          "productName": "PARRILLADA CERDO + COSTILLA LLEVAR",
-          "price": 32,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728112_734b4",
-          "quantity": 1,
-          "productName": "PARRILLADA CERDO + COSTILLA",
-          "price": 31,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728113_r7z89",
-          "quantity": 1,
-          "productName": "COMBO POLLO GRANDE",
-          "price": 29,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728114_94b6u",
-          "quantity": 7,
-          "productName": "ASADO FRANCESA",
-          "price": 4,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728114_8rlbn",
-          "quantity": 3,
-          "productName": "PERRO SENCILLO",
-          "price": 7,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192147_1pnco",
-          "quantity": 2,
-          "productName": "SUPER ESPECIAL JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728115_bhdsa",
-          "quantity": 3,
-          "productName": "PAPA A LA FRANCESA",
-          "price": 7,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728116_7xwye",
-          "quantity": 1,
-          "productName": "HAWAIANO GRANDE",
-          "price": 20,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728116_nu7rf",
-          "quantity": 1,
-          "productName": "POLLO GRANDE",
-          "price": 20,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728117_fwizn",
-          "quantity": 1,
-          "productName": "COSTILLA A LA BBQ",
-          "price": 17,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728118_ifwu4",
-          "quantity": 1,
-          "productName": "COMBO PERRO SENCILLO",
-          "price": 16,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728118_5uc38",
-          "quantity": 1,
-          "productName": "PERRO ESPECIAL",
-          "price": 15,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787533728119_70y69",
-          "quantity": 4,
-          "productName": "AGUA BOTELLA 500ML",
-          "price": 3,
-          "directSale": false,
-          "recipeSnapshot": []
-        },
-        {
-          "productId": "p_1787072192144_z6ic7",
-          "quantity": 1,
-          "productName": "SALCHIPAPA",
-          "price": 14500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173266_ftzpo",
-              "quantity": 1
-            },
-            {
-              "insumoId": "i_1787072173265_iqk2o",
-              "quantity": 2
-            }
-          ]
-        },
-        {
-          "productId": "p_1787072192157_h1qma",
-          "quantity": 1,
-          "productName": "HAWAIANO JUNIOR",
-          "price": 11500,
-          "directSale": false,
-          "recipeSnapshot": [
-            {
-              "insumoId": "i_1787072173265_as590",
-              "quantity": 1
-            }
-          ]
-        },
-        {
-          "productId": "p_1787533728120_v9rcw",
-          "quantity": 2,
-          "productName": "RECARGO DE DOMICILO",
-          "price": 3,
-          "directSale": false,
-          "recipeSnapshot": []
-        }
-      ],
-      "payments": {
-        "cash": 0,
-        "nequi": 0,
-        "bancolombia": 0,
-        "credit": 0,
-        "vouchers": 0
-      },
-      "expenses": [],
-      "createdAt": "2026-08-24T00:49:39.197Z"
-    },
-    {
-      "id": "d_1787675541602_dlgcl",
-      "date": "2026-08-25",
-      "opening": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
-      },
-      "physical": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
-      },
-      "movements": [],
-      "sales": [],
-      "payments": {
-        "cash": 0,
-        "nequi": 0,
-        "bancolombia": 0,
-        "credit": 0,
-        "vouchers": 0
-      },
-      "expenses": [],
-      "createdAt": "2026-08-25T16:32:21.604Z"
-    },
-    {
-      "id": "d_1789519264963_lyka4",
-      "date": "2026-09-15",
-      "opening": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
-      },
-      "physical": {
-        "i_1787069941851_ugxir": 0,
-        "i_1787069941851_vpp11": 30,
-        "i_1787069941851_1pplg": 0,
-        "i_1787069941851_6vycm": 0,
-        "i_1787069941851_tb3in": 16,
-        "i_1787069941851_guoyx": 0,
-        "i_1787069941851_l9lty": 0,
-        "i_1787069941851_35mih": 0,
-        "i_1787069941851_wjz4z": 0,
-        "i_1787069941851_bnqkv": 0,
-        "i_1787069941851_dle3q": 0,
-        "i_1787069941851_fp4cx": 0,
-        "i_1787069941851_po6c8": 0,
-        "i_1787069941851_04vma": 0,
-        "i_1787069941851_j73ff": 0,
-        "i_1787069941851_tzgi5": 0,
-        "i_1787069941851_zkv40": 0,
-        "i_1787069941851_7674f": 0,
-        "i_1787072173265_k0h2o": 0,
-        "i_1787072173265_7k66q": 0,
-        "i_1787072173265_xxen8": 0,
-        "i_1787072173265_1xgao": 0,
-        "i_1787072173265_z94b4": 0,
-        "i_1787072173265_ejqvh": 0,
-        "i_1787072173265_jd6zi": 0,
-        "i_1787072173265_jkeci": 0,
-        "i_1787072173265_as590": 0,
-        "i_1787072173265_c1o8t": 0,
-        "i_1787072173265_jey36": 0,
-        "i_1787072173265_iqk2o": 0,
-        "i_1787072173266_ftzpo": 0,
-        "i_1787072173266_wajw5": 0,
-        "i_1787072173266_lkv96": 0,
-        "i_1787072173266_1f2gx": 0,
-        "i_1787072173266_herqc": 0,
-        "i_1787072173266_1lbbh": 0,
-        "i_1787072173266_b1ai6": 0,
-        "i_1787072173266_vgmqi": 0,
-        "i_1787072173266_fyfmu": 0,
-        "i_1787072173266_y1wx0": 0,
-        "i_1787072173267_eoevs": 0,
-        "i_1787072173267_et4t3": 0,
-        "i_1787072173267_qeyme": 0,
-        "i_1787072173267_xrch4": 0,
-        "i_1787072173267_durgo": 0,
-        "i_1787072173267_d5ssj": 0,
-        "i_1787072173267_j1375": 0,
-        "i_1787072173267_9k6g0": 0,
-        "i_1787072173267_761xe": 0,
-        "i_1787072173267_eeu87": 0,
-        "i_1787072173268_bl4dx": 0,
-        "i_1787072173268_1vmma": 0,
-        "i_1787072173268_2z0lv": 0,
-        "i_1787072173268_zc9qo": 0,
-        "i_1787072173268_iw3cz": 0,
-        "i_1787072173268_pyyj0": 0,
-        "i_1787072173268_yz0ia": 0,
-        "i_1787072173268_geaja": 0,
-        "i_1787072173268_rkcot": 0,
-        "i_1787072173268_akf4o": 0,
-        "i_1787072173268_m8vvw": 0,
-        "i_1787072173269_apbcy": 0,
-        "i_1787072173269_kz89l": 0,
-        "i_1787072173269_8ed55": 0,
-        "i_1787072173269_82gah": 0,
-        "i_1787072173269_yk5jt": 0,
-        "i_1787072173269_aalwu": 0,
-        "i_1787072173269_xn8p6": 0,
-        "i_1787072173270_q7myr": 0,
-        "i_1787072173270_ripeg": 0,
-        "i_1787072173270_v2ioh": 0,
-        "i_1787072173270_bej7r": 0,
-        "i_1787072173270_l9dc6": 0,
-        "i_1787072173270_syxiv": 0,
-        "i_1787072173270_slzuo": 0,
-        "i_1787072173270_vb5hd": 0,
-        "i_1787072173271_z04tr": 0,
-        "i_1787072173271_jtyjc": 0,
-        "i_1787072173271_g4a0t": 0,
-        "i_1787072173271_zoaeo": 0,
-        "i_1787072173271_em49f": 0,
-        "i_1787072173271_4eabo": 0,
-        "i_1787072173271_nk48c": 0,
-        "i_1787072173271_7hnbb": 0,
-        "i_1787072173272_laa2a": 0,
-        "i_1787072173272_noeul": 0,
-        "i_1787072173272_y9kkb": 0,
-        "i_1787072173272_7qj80": 0,
-        "i_1787072173272_ap1aq": 0,
-        "i_1787072173272_pse1m": 0,
-        "i_1787072173273_24ksi": 0,
-        "i_1787072173273_jfobd": 0,
-        "i_1787072173273_3f4h3": 0,
-        "i_1787072173273_z4ax5": 0,
-        "i_1787072173273_2lq8e": 0,
-        "i_1787111740968_sf2do": 0,
-        "i_1787590620164_mnzrk": 0
       },
       "movements": [],
       "sales": [],
@@ -6762,228 +4428,35 @@
   "settings": {
     "businessName": "Wander",
     "currency": "COP",
-    "auditedInsumos": {
-      "Hamburguesas_Medianas": [
-        "i_1787072173265_xxen8",
-        "i_1787072173265_1xgao",
-        "i_1787072173265_z94b4"
-      ],
-      "Perros_Junior": [
-        "i_1787072173265_jey36",
-        "i_1787072173265_iqk2o"
-      ],
-      "Hamburguesas_Pequeñas": [
-        "i_1787072173265_jd6zi",
-        "i_1787072173265_ejqvh"
-      ],
-      "PAPAS_-": [
-        "i_1787072173266_ftzpo",
-        "i_1787072173265_iqk2o",
-        "i_1787072173266_wajw5"
-      ],
-      "Hamburguesas_Grandes": [
-        "i_1787072173265_7k66q",
-        "i_1787072173265_k0h2o"
-      ],
-      "Hamburguesas_Especiales / Otros": [
-        "i_1787069941851_1pplg",
-        "i_1787072173265_k0h2o",
-        "i_1787072173265_z94b4",
-        "i_1787072173265_7k66q",
-        "i_1787072173265_c1o8t",
-        "i_1787072173265_iqk2o",
-        "i_1787072173265_jey36"
-      ]
-    },
-    "productOrder": {
-      "Hamburguesas_Medianas": [
-        "p_1787072192149_i4a0o",
-        "p_1787072192149_38lt6",
-        "p_1787069941851_k6y3n",
-        "p_1787072192150_10ijx",
-        "p_1787069941852_5pfu0",
-        "p_1787072192151_jaktm",
-        "p_1787072192144_6gzhb",
-        "p_1787072192145_7kw51",
-        "p_1787072192154_8q8f4",
-        "p_1787072192160_afq7w",
-        "p_1787072192158_2r76x"
-      ],
-      "Hamburguesas_Medianas / Normales": [
-        "p_1787072192142_6zobn",
-        "p_1787072192142_pthjt",
-        "p_1787072192142_eslka",
-        "p_1787072192151_kw8z1",
-        "p_1787072192151_kelba",
-        "p_1787072192153_hlfu4",
-        "p_1787072192158_ccfls",
-        "p_1787072192159_27901",
-        "p_1787072192160_65pno",
-        "p_1787072192161_9hvwj",
-        "p_1787072192161_eg9aa",
-        "p_1787072192161_dgjqw",
-        "p_1787533728106_wq8y5"
-      ],
-      "Hamburguesas_Pequeñas": [
-        "p_1787072192147_doywa",
-        "p_1787072192147_3hqwt",
-        "p_1787072192147_el23h",
-        "p_1787072192147_0oq2q",
-        "p_1787072192149_e6t45",
-        "p_1787072192149_i31fh",
-        "p_1787072192153_zsa8q",
-        "p_1787072192151_stnut",
-        "p_1787072192144_rujf0",
-        "p_1787072192144_bhsm0",
-        "p_1787072192145_v85vg",
-        "p_1787072192155_0cgzh",
-        "p_1787072192159_rtzz3"
-      ],
-      "Perros_Junior": [
-        "p_1787072192147_nd61o",
-        "p_1787072192147_876a5",
-        "p_1787072192157_f56o4",
-        "p_1787072192157_z3sbp",
-        "p_1787533728118_ifwu4",
-        "p_1787072192149_yulmw",
-        "p_1787072192149_qagjt",
-        "p_1787072192158_iv0wp",
-        "p_1787072192144_gmazu",
-        "p_1787072192144_i2rrh",
-        "p_1787533728114_8rlbn",
-        "p_1787072192142_1viac",
-        "p_1787072192153_9izri",
-        "p_1787072192162_mpzja",
-        "p_1787072192151_m30j0"
-      ],
-      "PAPAS_-": [
-        "p_1787533728115_bhdsa",
-        "p_1787072192144_g3mz9",
-        "p_1787072192144_8s5u3",
-        "p_1787072192144_z6ic7",
-        "p_1787072192142_w49oq"
-      ],
-      "NUGETS_-": [
-        "p_1787072192144_3vwq6",
-        "p_1787072192143_ak71c"
-      ],
-      "Adiciones_Especiales / Otros": [
-        "p_1787072192144_fkwi0",
-        "p_1787072192144_8ecou",
-        "p_1787072192145_plrlg",
-        "p_1787072192145_qto7e",
-        "p_1787072192145_tp4fj",
-        "p_1787072192145_3w6es",
-        "p_1787072192146_bp74p",
-        "p_1787072192145_aciom",
-        "p_1787072192146_10twp",
-        "p_1787072192155_9ujfx",
-        "p_1787072192142_pyt4m",
-        "p_1787072192142_c28xv",
-        "p_1787072192142_oiljn"
-      ],
-      "Sándwiches_Especiales / Otros": [
-        "p_1787072192147_1pnco",
-        "p_1787072192151_2m0xh",
-        "p_1787072192154_vrnt4",
-        "p_1787072192150_kikpr",
-        "p_1787072192157_h1qma",
-        "p_1787072192159_w3was",
-        "p_1787072192161_eqwnr",
-        "p_1787072192161_4xm0v",
-        "p_1787072192162_zcolp",
-        "p_1787072192151_kelba",
-        "p_1787072192153_ieq0y",
-        "p_1787072192163_5wutl",
-        "p_1787072192163_brtsf",
-        "p_1787072192163_odh0z",
-        "p_1787072192164_vppvj",
-        "p_1787072192164_ll83y",
-        "p_1787072192166_2gq4j",
-        "p_1787072192166_91bd9",
-        "p_1787072192167_wh2y9",
-        "p_1787072192168_1rf74",
-        "p_1787072192160_gook6",
-        "p_1787533728114_94b6u",
-        "p_1787072192161_9hvwj"
-      ],
-      "Perros_Grandes / Súper": [
-        "p_1787069941852_i6z76",
-        "p_1787072192150_ms93x",
-        "p_1787072192151_53cgf",
-        "p_1787072192154_54rbc",
-        "p_1787072192156_iavzv",
-        "p_1787533728118_5uc38",
-        "p_1787533728104_t676n",
-        "p_1787072192158_avsfv"
-      ],
-      "Hamburguesas_Grandes": [
-        "p_1787072192150_fa63m",
-        "p_1787072192150_g8p04",
-        "p_1787072192155_hb2ba",
-        "p_1787072192154_cs963",
-        "p_1787072192162_a8ogs",
-        "p_1787072192144_v29da"
-      ],
-      "Bebidas_Gaseosas": [
-        "p_1787533728107_lnr10",
-        "p_1787072192147_fpcni",
-        "p_1787072192150_i0q09",
-        "p_1787069941852_7o8sl",
-        "p_1787533728105_ccgkq",
-        "p_1787072192142_02orp",
-        "p_1787072192142_xr14k",
-        "p_1787072192152_r8uo1",
-        "p_1787533728119_70y69",
-        "p_1787072192151_rs90s",
-        "p_1787072192153_bvfb5"
-      ],
-      "SANDWICH_Normal": [
-        "p_1787072192148_0o11h",
-        "p_1787072192160_65pno",
-        "p_1787072192150_fjys4",
-        "p_1787072192153_rcy16",
-        "p_1787072192156_janje",
-        "p_1787072192158_ccfls",
-        "p_1787072192159_27901",
-        "p_1787072192161_dgjqw",
-        "p_1787072192162_kkotu",
-        "p_1787072192163_w4mfa",
-        "p_1787072192163_6bj8i",
-        "p_1787072192164_3d1o9",
-        "p_1787072192164_5614o",
-        "p_1787072192165_sbzd1",
-        "p_1787072192166_zd854",
-        "p_1787072192167_9st4p",
-        "p_1787072192167_vp8z1",
-        "p_1787072192168_nuwtj"
-      ]
-    },
-    "subgroupOrder": {
-      "Hamburguesas": [
-        "Grandes",
-        "Medianas",
-        "Pequeñas",
-        "Especiales / Otros"
-      ],
-      "Perros": [
-        "Junior",
-        "Grandes / Súper",
-        "-",
-        "Especiales / Otros"
-      ]
-    },
-    "categoryOrder": [
-      "Hamburguesas",
-      "Perros",
-      "ASADOS",
-      "Bebidas",
-      "Adiciones",
-      "PAPAS",
-      "Sándwiches",
-      "NUGETS",
-      "Adiciones y Entradas",
-      "SANDWICH"
-    ]
+    "viewSettings": {
+      "categoryOrder": [],
+      "hiddenCategories": [],
+      "subgroupOrder": {
+        "Hamburguesas": [
+          "Grandes",
+          "Medianas",
+          "Medianas / Normales",
+          "Especiales / Otros",
+          "Grandes / Súper",
+          "Pequeñas / Junior",
+          "Pequeñas"
+        ]
+      },
+      "hiddenSubgroups": {},
+      "productOrder": {
+        "Hamburguesas::Medianas": [
+          "p_1787069941852_5pfu0",
+          "p_1787072192149_i4a0o",
+          "p_1787069941851_k6y3n",
+          "p_1787072192144_6gzhb"
+        ]
+      },
+      "hiddenProducts": [],
+      "auditInsumoOrder": [],
+      "hiddenAuditInsumos": [],
+      "hiddenSubgroupInsumos": {
+        "Hamburguesas::Medianas / Normales": []
+      }
+    }
   }
 }

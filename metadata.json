@@ -1,0 +1,8 @@
+{
+  "name": "Wander · Cuadre Diario e Inventario",
+  "description": "Sistema de control de operaciones, cuadre de caja e inventario físico",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
