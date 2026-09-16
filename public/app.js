@@ -1450,84 +1450,39 @@ function renderCatalogEditor() {
               <div class="modal-section-title" style="margin-top:16px;">
                 <span>Recetas que usan este insumo</span>
               </div>
-              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:4px;">
-                <div id="insumoRecipesList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px; max-height:200px; overflow-y:auto;">
-                  ${usingProducts.length === 0 ? '<div style="font-size:12px; color:#64748b;">No está asignado a ninguna receta.</div>' : usingProducts.map(p => {
+              <div class="recipe-wide" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:4px;">
+                <div id="insumoRecipesList" style="display:flex; flex-direction:column; gap:4px; max-height:180px; overflow-y:auto; margin-bottom:12px;">
+                  ${usingProducts.map(p => {
                     const r = p.recipe.find(x => x.insumoId === entity.id);
                     return `
-                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
-                        <span><b>${p.name}</b> <span style="color:var(--muted); margin-left:4px;">(Cantidad: ${r.quantity})</span></span>
-                        <button type="button" class="btn danger-sm remove-insumo-from-recipe" data-pid="${p.id}" style="padding:2px 6px; font-size:10px;">Quitar</button>
+                      <div class="insumo-recipe-line" data-pid="${p.id}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+                        <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</span>
+                        <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
+                          <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
+                          <button type="button" class="btn danger-sm remove-insumo-from-recipe" style="padding:4px 8px; font-size:12px;">Quitar</button>
+                        </div>
                       </div>
                     `;
                   }).join('')}
                 </div>
                 
-                <div style="display:flex; gap:6px; align-items:flex-end;">
-                  <label style="flex:2; margin:0;">
-                    <span style="font-size:11px;">Añadir a otra receta:</span>
-                    <input type="text" id="addInsumoToProduct" list="addInsumoToProductList" placeholder="Buscar producto..." style="padding:4px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; width:100%; height:30px;">
-                    <datalist id="addInsumoToProductList">
-                      ${state.db.products.filter(p => !p.recipe.some(r => r.insumoId === entity.id)).map(p => `<option value="${p.name}"></option>`).join('')}
-                    </datalist>
-                  </label>
-                  <label style="flex:1; margin:0;">
-                    <span style="font-size:11px;">Cantidad:</span>
-                    <input type="number" id="addInsumoQuantity" min="0.01" step="0.01" value="1" style="padding:4px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; width:100%; height:30px;">
-                  </label>
-                  <button type="button" id="addInsumoToRecipeBtn" class="btn primary" style="padding:4px 10px; font-size:12px; height:30px; white-space:nowrap;">+ Añadir</button>
+                <div style="border-top:1px solid #cbd5e1; padding-top:12px;">
+                  <div style="font-size:12px; font-weight:600; color:var(--brand-teal); margin-bottom:6px;">Buscar y añadir a receta:</div>
+                  <input type="text" id="productSearchInput" placeholder="Escribe el nombre del producto..." autocomplete="off" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; margin-bottom:8px;">
+                  <div id="availableProductsList" style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
                 </div>
               </div>
-
               <div class="modal-footer" style="margin-top:20px; padding:0; border:none; display:flex; justify-content:space-between;">
                 <button type="button" id="deleteEdit" class="btn danger-sm" style="flex:1; margin-right:10px;">Eliminar Insumo</button>
-                <button type="submit" class="btn primary" style="flex:2;">Guardar Insumo</button>
+                <button type="submit" class="btn primary" style="flex:2;">Guardar Insumo y Recetas</button>
               </div>
             </form>
           </div>
         </div>
       </div>
     `;
-
     $('#editInsumoForm').onsubmit = saveEditedInsumo;
-    
-    document.querySelectorAll('.remove-insumo-from-recipe').forEach(btn => {
-      btn.onclick = () => {
-        const pid = btn.dataset.pid;
-        const prod = state.db.products.find(p => p.id === pid);
-        if (prod) {
-          prod.recipe = prod.recipe.filter(r => r.insumoId !== entity.id);
-          api(`/api/catalog/product/${prod.id}`, 'PUT', prod).then(x => {
-            state.db.insumos = x.insumos;
-            state.db.products = x.products;
-            renderCatalogEditor(); 
-            renderCatalogLists(); 
-            toast('Receta actualizada');
-          });
-        }
-      };
-    });
-    
-    $('#addInsumoToRecipeBtn').onclick = () => {
-      const pName = $('#addInsumoToProduct').value;
-      const qty = Number($('#addInsumoQuantity').value);
-      if (!pName) return toast('Seleccione un producto');
-      if (qty <= 0) return toast('La cantidad debe ser mayor a 0');
-      
-      const prod = state.db.products.find(p => p.name === pName);
-      if (!prod) return toast('Producto no encontrado');
-      if (prod) {
-        prod.recipe.push({ insumoId: entity.id, quantity: qty });
-        api(`/api/catalog/product/${prod.id}`, 'PUT', prod).then(x => {
-          state.db.insumos = x.insumos;
-          state.db.products = x.products;
-          renderCatalogEditor();
-          renderCatalogLists();
-          toast('Receta actualizada');
-        });
-      }
-    };
-
+    bindEditInsumoProducts();
   } else {
     box.innerHTML = `
       <div class="modal-backdrop" role="dialog" aria-modal="true" style="z-index: 10000;">
@@ -1590,9 +1545,12 @@ function renderCatalogEditor() {
               </div>
               
               <div class="recipe-wide" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
-                <div id="editRecipeLines" style="display:flex; flex-direction:column;">${recipeLinesHtml(entity.recipe)}</div>
-                <div style="margin-top:10px;">
-                  <button type="button" id="addEditIngredient" class="btn outline" style="padding:4px 10px; font-size:12px;">+ Añadir insumo</button>
+                <div id="editRecipeLines" style="display:flex; flex-direction:column; gap:4px; max-height:180px; overflow-y:auto; margin-bottom:12px;">${recipeLinesHtml(entity.recipe)}</div>
+                
+                <div style="border-top:1px solid #cbd5e1; padding-top:12px;">
+                  <div style="font-size:12px; font-weight:600; color:var(--brand-teal); margin-bottom:6px;">Buscar y añadir insumo:</div>
+                  <input type="text" id="insumoSearchInput" placeholder="Escribe el nombre del insumo..." autocomplete="off" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; margin-bottom:8px;">
+                  <div id="availableInsumosList" style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
                 </div>
               </div>
               
@@ -1627,51 +1585,173 @@ function renderCatalogEditor() {
 function recipeLinesHtml(recipe) {
   return recipe.map(r => {
     const insumo = state.db.insumos.find(i => i.id === r.insumoId);
+    if (!insumo) return '';
     return `
-    <span class="recipe-line">
-      <input type="text" class="insumo-search" list="allInsumosList" placeholder="Buscar insumo..." value="${insumo ? insumo.name : ''}" required>
-      <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required>
-      <button type="button" class="removeIngredient">×</button>
+    <span class="recipe-line" data-id="${insumo.id}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+      <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${insumo.name}</span>
+      <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
+        <input type="number" class="quantity-input" min="0.01" step="0.01" value="${r.quantity}" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
+        <button type="button" class="btn danger-sm removeIngredient" style="padding:4px 8px; font-size:12px;">Quitar</button>
+      </div>
     </span>
   `}).join('');
 }
 
 function bindEditRecipe() {
   const box = $('#editRecipeLines');
-  if (!box) return;
-  const remove = () => box.querySelectorAll('.removeIngredient').forEach(b => b.onclick = () => {
-    if (box.children.length > 1) b.closest('.recipe-line').remove();
-    else toast('La receta debe contener al menos un ingrediente');
-  });
-  remove();
-  $('#addEditIngredient').onclick = () => {
-    box.insertAdjacentHTML('beforeend', recipeLinesHtml([{ insumoId: state.db.insumos[0]?.id, quantity: 1 }]));
-    remove();
+  const searchInput = $('#insumoSearchInput');
+  const listContainer = $('#availableInsumosList');
+  if (!box || !listContainer) return;
+
+  const updateList = () => {
+    const term = (searchInput.value || '').toLowerCase().trim();
+    const existingIds = [...box.querySelectorAll('.recipe-line')].map(x => x.dataset.id);
+    const available = state.db.insumos.filter(i => i.active !== false && !existingIds.includes(i.id) && i.name.toLowerCase().includes(term));
+    
+    if (available.length === 0) {
+      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:8px; text-align:center;">No hay más insumos para añadir.</div>';
+      return;
+    }
+
+    listContainer.innerHTML = available.map(i => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+        <span style="font-size:12px; color:#475569; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i.name}</span>
+        <button type="button" class="btn outline addAvailableInsumo" data-id="${i.id}" style="padding:2px 8px; font-size:11px; margin-left:8px;">+ Añadir</button>
+      </div>
+    `).join('');
+    
+    listContainer.querySelectorAll('.addAvailableInsumo').forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.id;
+        box.insertAdjacentHTML('beforeend', recipeLinesHtml([{ insumoId: id, quantity: 1 }]));
+        bindRemoves();
+        updateList();
+        searchInput.focus();
+      };
+    });
   };
+
+  const bindRemoves = () => {
+    box.querySelectorAll('.removeIngredient').forEach(b => b.onclick = () => {
+      b.closest('.recipe-line').remove();
+      updateList();
+    });
+  };
+
+  searchInput.oninput = updateList;
+  bindRemoves();
+  updateList();
+}
+
+function bindEditInsumoProducts() {
+  const box = $('#insumoRecipesList');
+  const searchInput = $('#productSearchInput');
+  const listContainer = $('#availableProductsList');
+  if (!box || !listContainer) return;
+
+  const updateList = () => {
+    const term = (searchInput.value || '').toLowerCase().trim();
+    const existingIds = [...box.querySelectorAll('.insumo-recipe-line')].map(x => x.dataset.pid);
+    const available = state.db.products.filter(p => !existingIds.includes(p.id) && p.name.toLowerCase().includes(term));
+    
+    if (available.length === 0) {
+      listContainer.innerHTML = '<div style="font-size:12px; color:#94a3b8; padding:8px; text-align:center;">No hay más productos para añadir.</div>';
+      return;
+    }
+
+    listContainer.innerHTML = available.map(p => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+        <span style="font-size:12px; color:#475569; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</span>
+        <button type="button" class="btn outline addAvailableProduct" data-pid="${p.id}" data-name="${p.name}" style="padding:2px 8px; font-size:11px; margin-left:8px;">+ Añadir</button>
+      </div>
+    `).join('');
+    
+    listContainer.querySelectorAll('.addAvailableProduct').forEach(btn => {
+      btn.onclick = () => {
+        const pid = btn.dataset.pid;
+        const pname = btn.dataset.name;
+        box.insertAdjacentHTML('beforeend', `
+          <div class="insumo-recipe-line" data-pid="${pid}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border:1px solid #e2e8f0; border-radius:4px;">
+            <span style="font-size:13px; font-weight:600; color:#334155; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pname}</span>
+            <div style="display:flex; align-items:center; gap:8px; margin-left:8px;">
+              <input type="number" class="quantity-input" min="0.01" step="0.01" value="1" required style="width:65px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
+              <button type="button" class="btn danger-sm remove-insumo-from-recipe" style="padding:4px 8px; font-size:12px;">Quitar</button>
+            </div>
+          </div>
+        `);
+        bindRemoves();
+        updateList();
+        searchInput.focus();
+      };
+    });
+  };
+
+  const bindRemoves = () => {
+    box.querySelectorAll('.remove-insumo-from-recipe').forEach(b => b.onclick = () => {
+      b.closest('.insumo-recipe-line').remove();
+      updateList();
+    });
+  };
+
+  searchInput.oninput = updateList;
+  bindRemoves();
+  updateList();
 }
 
 async function saveEditedInsumo(e) {
   e.preventDefault();
   const f = new FormData(e.target);
+  
+  const currentProductIds = [...$('#insumoRecipesList').querySelectorAll('.insumo-recipe-line')].map(el => ({
+    id: el.dataset.pid,
+    qty: Number(el.querySelector('.quantity-input').value)
+  }));
+  
+  const productsToUpdate = [];
+  state.db.products.forEach(p => {
+    const hasNow = currentProductIds.find(c => c.id === p.id);
+    const hadBefore = p.recipe.find(r => r.insumoId === state.editing.id);
+    
+    let changed = false;
+    let newRecipe = [...p.recipe];
+    
+    if (hasNow && hadBefore) {
+      if (hasNow.qty !== hadBefore.quantity) {
+        newRecipe = newRecipe.map(r => r.insumoId === state.editing.id ? { ...r, quantity: hasNow.qty } : r);
+        changed = true;
+      }
+    } else if (hasNow && !hadBefore) {
+      newRecipe.push({ insumoId: state.editing.id, quantity: hasNow.qty });
+      changed = true;
+    } else if (!hasNow && hadBefore) {
+      newRecipe = newRecipe.filter(r => r.insumoId !== state.editing.id);
+      changed = true;
+    }
+    
+    if (changed) {
+      productsToUpdate.push({ ...p, recipe: newRecipe });
+    }
+  });
+  
+  for (const p of productsToUpdate) {
+    await api(`/api/catalog/product/${p.id}`, 'PUT', p);
+  }
+  
   const x = await api(`/api/catalog/insumo/${state.editing.id}`, 'PUT', Object.fromEntries(f));
   state.db.insumos = x.insumos;
   state.db.products = x.products;
   state.editing = null;
   render();
-  toast('Insumo actualizado');
+  toast('Insumo y recetas actualizados');
 }
 
 async function saveEditedProduct(e) {
   e.preventDefault();
   const f = new FormData(e.target);
-  const recipe = [...$('#editRecipeLines').querySelectorAll('.recipe-line')].map(x => {
-    const insumoName = x.querySelector('.insumo-search').value;
-    const insumo = state.db.insumos.find(i => i.name === insumoName);
-    return {
-      insumoId: insumo ? insumo.id : null,
-      quantity: Number(x.querySelector('.quantity-input').value)
-    };
-  }).filter(r => r.insumoId);
+  const recipe = [...$('#editRecipeLines').querySelectorAll('.recipe-line')].map(x => ({
+    insumoId: x.dataset.id,
+    quantity: Number(x.querySelector('.quantity-input').value)
+  })).filter(r => r.insumoId);
   const x = await api(`/api/catalog/product/${state.editing.id}`, 'PUT', {
     name: f.get('name'),
     category: f.get('category'),
