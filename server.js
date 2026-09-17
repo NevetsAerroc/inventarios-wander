@@ -423,66 +423,78 @@ function report(db, day) {
   const hiddenProducts = new Set(vs.hiddenProducts || []);
   const hiddenAuditInsumos = new Set(vs.hiddenAuditInsumos || []);
 
-  let finalCategoryBreakdown = categoryBreakdown.filter(c => !hiddenCategories.has(c.category));
-  if (Array.isArray(vs.categoryOrder) && vs.categoryOrder.length) {
-    const catOrderMap = new Map(vs.categoryOrder.map((cat, idx) => [cat, idx]));
-    finalCategoryBreakdown.sort((a, b) => {
-      const ordA = catOrderMap.has(a.category) ? catOrderMap.get(a.category) : 9999;
-      const ordB = catOrderMap.has(b.category) ? catOrderMap.get(b.category) : 9999;
-      return ordA - ordB;
-    });
-  }
-
-  finalCategoryBreakdown = finalCategoryBreakdown.map(cat => {
-    const hiddenSubForCat = new Set(vs.hiddenSubgroups?.[cat.category] || []);
-    let subs = cat.subgroups.filter(sg => !hiddenSubForCat.has(sg.subgroup));
-
-    const subOrderList = vs.subgroupOrder?.[cat.category];
-    if (Array.isArray(subOrderList) && subOrderList.length) {
-      const subOrderMap = new Map(subOrderList.map((s, idx) => [s, idx]));
-      subs.sort((a, b) => {
-        const ordA = subOrderMap.has(a.subgroup) ? subOrderMap.get(a.subgroup) : 9999;
-        const ordB = subOrderMap.has(b.subgroup) ? subOrderMap.get(b.subgroup) : 9999;
+  // Helper to sort category breakdown
+  function processBreakdown(cats, filterHidden = true) {
+    let result = filterHidden ? cats.filter(c => !hiddenCategories.has(c.category)) : [...cats];
+    if (Array.isArray(vs.categoryOrder) && vs.categoryOrder.length) {
+      const catOrderMap = new Map(vs.categoryOrder.map((cat, idx) => [cat, idx]));
+      result.sort((a, b) => {
+        const ordA = catOrderMap.has(a.category) ? catOrderMap.get(a.category) : 9999;
+        const ordB = catOrderMap.has(b.category) ? catOrderMap.get(b.category) : 9999;
         return ordA - ordB;
       });
     }
 
-    subs = subs.map(sg => {
-      const key = `${cat.category}::${sg.subgroup}`;
-      let prods = sg.products.filter(p => !hiddenProducts.has(p.id || p.name));
-      const prodOrderList = vs.productOrder?.[key];
-      if (Array.isArray(prodOrderList) && prodOrderList.length) {
-        const prodOrderMap = new Map(prodOrderList.map((pid, idx) => [pid, idx]));
-        prods.sort((a, b) => {
-          const ordA = prodOrderMap.has(a.id || a.name) ? prodOrderMap.get(a.id || a.name) : 9999;
-          const ordB = prodOrderMap.has(b.id || b.name) ? prodOrderMap.get(b.id || b.name) : 9999;
+    return result.map(cat => {
+      const hiddenSubForCat = new Set(vs.hiddenSubgroups?.[cat.category] || []);
+      let subs = filterHidden ? cat.subgroups.filter(sg => !hiddenSubForCat.has(sg.subgroup)) : [...cat.subgroups];
+
+      const subOrderList = vs.subgroupOrder?.[cat.category];
+      if (Array.isArray(subOrderList) && subOrderList.length) {
+        const subOrderMap = new Map(subOrderList.map((s, idx) => [s, idx]));
+        subs.sort((a, b) => {
+          const ordA = subOrderMap.has(a.subgroup) ? subOrderMap.get(a.subgroup) : 9999;
+          const ordB = subOrderMap.has(b.subgroup) ? subOrderMap.get(b.subgroup) : 9999;
           return ordA - ordB;
         });
       }
 
-      // Subgroup insumo audit ordering & visibility
-      const hiddenInsumosForSub = new Set(vs.hiddenSubgroupInsumos?.[key] || []);
-      let filteredAudit = (sg.insumosAudit || []).filter(ia => !hiddenInsumosForSub.has(ia.insumo?.id));
-      const subInsumoOrderList = vs.subgroupInsumoOrder?.[key];
-      if (Array.isArray(subInsumoOrderList) && subInsumoOrderList.length) {
-        const insumoMap = new Map(subInsumoOrderList.map((id, idx) => [id, idx]));
-        filteredAudit.sort((a, b) => {
-          const ordA = insumoMap.has(a.insumo?.id) ? insumoMap.get(a.insumo?.id) : 9999;
-          const ordB = insumoMap.has(b.insumo?.id) ? insumoMap.get(b.insumo?.id) : 9999;
-          return ordA - ordB;
-        });
-      }
+      subs = subs.map(sg => {
+        const key = `${cat.category}::${sg.subgroup}`;
+        let prods = filterHidden ? sg.products.filter(p => !hiddenProducts.has(p.id || p.name)) : [...sg.products];
+        const prodOrderList = vs.productOrder?.[key];
+        if (Array.isArray(prodOrderList) && prodOrderList.length) {
+          const prodOrderMap = new Map(prodOrderList.map((pid, idx) => [pid, idx]));
+          prods.sort((a, b) => {
+            const ordA = prodOrderMap.has(a.id || a.name) ? prodOrderMap.get(a.id || a.name) : 9999;
+            const ordB = prodOrderMap.has(b.id || b.name) ? prodOrderMap.get(b.id || b.name) : 9999;
+            return ordA - ordB;
+          });
+        }
 
-      return {
-        ...sg,
-        products: prods,
-        insumosAudit: filteredAudit,
-        allInsumosAudit: sg.insumosAudit || []
-      };
+        // Subgroup insumo audit ordering & visibility
+        const hiddenInsumosForSub = new Set(vs.hiddenSubgroupInsumos?.[key] || []);
+        let filteredAudit = (sg.insumosAudit || []).filter(ia => !hiddenInsumosForSub.has(ia.insumo?.id));
+        let allAudit = [...(sg.insumosAudit || [])];
+        const subInsumoOrderList = vs.subgroupInsumoOrder?.[key];
+        if (Array.isArray(subInsumoOrderList) && subInsumoOrderList.length) {
+          const insumoMap = new Map(subInsumoOrderList.map((id, idx) => [id, idx]));
+          filteredAudit.sort((a, b) => {
+            const ordA = insumoMap.has(a.insumo?.id) ? insumoMap.get(a.insumo?.id) : 9999;
+            const ordB = insumoMap.has(b.insumo?.id) ? insumoMap.get(b.insumo?.id) : 9999;
+            return ordA - ordB;
+          });
+          allAudit.sort((a, b) => {
+            const ordA = insumoMap.has(a.insumo?.id) ? insumoMap.get(a.insumo?.id) : 9999;
+            const ordB = insumoMap.has(b.insumo?.id) ? insumoMap.get(b.insumo?.id) : 9999;
+            return ordA - ordB;
+          });
+        }
+
+        return {
+          ...sg,
+          products: prods,
+          insumosAudit: filteredAudit,
+          allInsumosAudit: allAudit
+        };
+      });
+
+      return { ...cat, subgroups: subs };
     });
+  }
 
-    return { ...cat, subgroups: subs };
-  });
+  const finalCategoryBreakdown = processBreakdown(categoryBreakdown, true);
+  const rawSortedCategoryBreakdown = processBreakdown(categoryBreakdown, false);
 
   // Apply audit insumo ordering & visibility
   let finalInventory = inventory.filter(inv => !hiddenAuditInsumos.has(inv.insumo.id));
@@ -500,7 +512,7 @@ function report(db, day) {
     allInventory: inventory,
     productBreakdown,
     categoryBreakdown: finalCategoryBreakdown,
-    rawCategoryBreakdown: categoryBreakdown,
+    rawCategoryBreakdown: rawSortedCategoryBreakdown,
     salesTotal,
     expensesTotal,
     expectedCash: salesTotal - expensesTotal - platforms,
@@ -954,6 +966,26 @@ const server = http.createServer(async (req, res) => {
       const date = url.searchParams.get('date') || today();
       const d = dayFor(db, date);
       return json(res, 200, { settings: db.settings, report: report(db, d) });
+    }
+    if (url.pathname === '/api/backup-export' && req.method === 'GET') {
+      const currentDb = readDb();
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Disposition': `attachment; filename="wander-backup-${today()}.json"`
+      });
+      return res.end(JSON.stringify(currentDb, null, 2));
+    }
+    if (url.pathname === '/api/backup-import' && req.method === 'POST') {
+      const imported = await body(req);
+      if (!imported || !Array.isArray(imported.insumos) || !Array.isArray(imported.products)) {
+        return json(res, 400, { error: 'El archivo de respaldo JSON no es válido o está incompleto.' });
+      }
+      db.settings = imported.settings || db.settings;
+      db.insumos = imported.insumos;
+      db.products = imported.products;
+      db.days = imported.days || [];
+      writeDb(db, { all: true });
+      return json(res, 200, { success: true, message: 'Respaldo restaurado exitosamente en la base de datos y caché.' });
     }
     if (url.pathname === '/api/export-report' && req.method === 'GET') {
       const date = url.searchParams.get('date') || today();

@@ -39,6 +39,15 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
         <span>Sincronizar Nube</span>
       </button>
+      <button id="btnExportBackup" class="btn btn-secondary btn-sm" title="Descargar copia de seguridad completa en JSON (Recetas, insumos, días y pagos)" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:38px; font-weight:600;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>Respaldar DB</span>
+      </button>
+      <label class="btn btn-secondary btn-sm" title="Restaurar base de datos desde un archivo JSON de respaldo" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:38px; font-weight:600; cursor:pointer; margin-bottom:0;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <span>Restaurar DB</span>
+        <input id="inputImportBackup" type="file" accept=".json" style="display:none;">
+      </label>
       <div class="date-picker-group">
         <label for="date">Fecha de operación</label>
         <div class="date-input-wrap">
@@ -512,9 +521,16 @@
         <div id="modalCurrentProductsList" class="modal-products-list"></div>
 
         <!-- Sección: Otros productos disponibles para agregar -->
-        <div class="modal-section-title" style="margin-top:16px;">
-          <span>Otros Productos Disponibles para Agregar</span>
-          <span id="modalAvailableCountBadge" class="badge" style="background:#f1f5f9; color:#475569;">0 disponibles</span>
+        <div class="modal-section-title" style="margin-top:16px; display:flex; flex-direction:column; gap:8px; align-items:stretch;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Otros Productos Disponibles para Agregar</span>
+            <span id="modalAvailableCountBadge" class="badge" style="background:#f1f5f9; color:#475569;">0 disponibles</span>
+          </div>
+          <div class="modal-search-bar" style="margin:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="modalAvailableSearchInput" placeholder="Buscar producto disponible para agregar..." autocomplete="off">
+            <button type="button" id="clearModalAvailableSearchBtn" class="clear-search-btn hidden" title="Limpiar búsqueda">&times;</button>
+          </div>
         </div>
         <div id="modalAvailableProductsList" class="modal-products-list"></div>
       </div>

@@ -48,71 +48,98 @@ async function saveViewSettings(newPartial) {
 function setupDragAndDrop(container, itemSelector, onReorder) {
   let draggedEl = null;
 
-  const items = container.querySelectorAll(itemSelector);
-  items.forEach(el => {
+  container.querySelectorAll(itemSelector).forEach(el => {
     el.setAttribute('draggable', 'true');
 
     el.addEventListener('dragstart', e => {
+      if (itemSelector === '.subgroup-card-block' || itemSelector === '.category-list-card') {
+        if (!e.target.closest('.drag-handle, .subgroup-card-header-bar, .category-list-header, h3')) {
+          e.preventDefault();
+          return;
+        }
+      }
+      if (e.target.closest('button, input, select, a, .ctrl-btn')) {
+        e.preventDefault();
+        return;
+      }
+      e.stopPropagation();
       draggedEl = el;
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', el.dataset.dragId || '');
       setTimeout(() => el.classList.add('is-dragging'), 0);
     });
 
-    el.addEventListener('dragend', () => {
-      el.classList.remove('is-dragging');
-      items.forEach(item => {
-        item.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-card');
+    el.addEventListener('dragend', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.is-dragging, .drag-over-top, .drag-over-bottom, .drag-over-card').forEach(item => {
+        item.classList.remove('is-dragging', 'drag-over-top', 'drag-over-bottom', 'drag-over-card');
       });
       draggedEl = null;
     });
+  });
 
-    el.addEventListener('dragover', e => {
-      if (!draggedEl || draggedEl === el) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+  container.addEventListener('dragover', e => {
+    if (!draggedEl || !container.contains(draggedEl)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
 
-      const rect = el.getBoundingClientRect();
+    const targetItem = e.target.closest(itemSelector);
+    container.querySelectorAll(itemSelector).forEach(item => {
+      item.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-card');
+    });
+
+    if (targetItem && targetItem !== draggedEl && container.contains(targetItem)) {
+      const rect = targetItem.getBoundingClientRect();
       const mid = rect.top + rect.height / 2;
       if (e.clientY < mid) {
-        el.classList.add('drag-over-top');
-        el.classList.remove('drag-over-bottom');
+        targetItem.classList.add('drag-over-top');
       } else {
-        el.classList.add('drag-over-bottom');
-        el.classList.remove('drag-over-top');
+        targetItem.classList.add('drag-over-bottom');
       }
+    }
+  });
+
+  container.addEventListener('dragleave', e => {
+    e.stopPropagation();
+    if (!container.contains(e.relatedTarget)) {
+      container.querySelectorAll(itemSelector).forEach(item => {
+        item.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-card');
+      });
+    }
+  });
+
+  container.addEventListener('drop', e => {
+    if (!draggedEl || !container.contains(draggedEl)) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const targetItem = e.target.closest(itemSelector);
+    document.querySelectorAll('.is-dragging, .drag-over-top, .drag-over-bottom, .drag-over-card').forEach(item => {
+      item.classList.remove('is-dragging', 'drag-over-top', 'drag-over-bottom', 'drag-over-card');
     });
 
-    el.addEventListener('dragleave', () => {
-      el.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-card');
-    });
-
-    el.addEventListener('drop', e => {
-      if (!draggedEl || draggedEl === el) return;
-      e.preventDefault();
-      const rect = el.getBoundingClientRect();
+    if (targetItem && targetItem !== draggedEl && container.contains(targetItem)) {
+      const rect = targetItem.getBoundingClientRect();
       const mid = rect.top + rect.height / 2;
       const isTop = e.clientY < mid;
 
-      const parent = el.parentNode;
       if (isTop) {
-        parent.insertBefore(draggedEl, el);
+        container.insertBefore(draggedEl, targetItem);
       } else {
-        parent.insertBefore(draggedEl, el.nextSibling);
+        container.insertBefore(draggedEl, targetItem.nextSibling);
       }
+    }
 
-      el.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-card');
-      draggedEl.classList.remove('is-dragging');
+    const updatedOrder = Array.from(container.querySelectorAll(itemSelector))
+      .map(item => item.dataset.dragId)
+      .filter(Boolean);
 
-      // Collect new order IDs
-      const updatedOrder = Array.from(parent.querySelectorAll(itemSelector))
-        .map(item => item.dataset.dragId)
-        .filter(Boolean);
+    draggedEl = null;
 
-      if (typeof onReorder === 'function') {
-        onReorder(updatedOrder);
-      }
-    });
+    if (typeof onReorder === 'function') {
+      onReorder(updatedOrder);
+    }
   });
 }
 
@@ -455,7 +482,12 @@ function renderCategoryBreakdown() {
   }
 
   // Choose source data: In edit mode, show all categories (with dimming for hidden ones) so user can unhide them
-  const breakdown = isEdit ? (report.rawCategoryBreakdown || report.categoryBreakdown || []) : (report.categoryBreakdown || []);
+  let breakdown = isEdit ? (report.rawCategoryBreakdown || report.categoryBreakdown || []) : (report.categoryBreakdown || []);
+  const catOrder = vs.categoryOrder || [];
+  if (catOrder.length) {
+    const cMap = new Map(catOrder.map((c, i) => [c, i]));
+    breakdown = [...breakdown].sort((a, b) => (cMap.has(a.category) ? cMap.get(a.category) : 999) - (cMap.has(b.category) ? cMap.get(b.category) : 999));
+  }
 
   if (!breakdown.length) {
     box.innerHTML = '<p class="hint">Aún no hay productos registrados en el catálogo para realizar el arqueo por categoría.</p>';
@@ -489,7 +521,6 @@ function renderCategoryBreakdown() {
           ` : ''}
           ${isEdit ? `
             <div class="category-order-controls">
-              <span class="drag-handle" data-drag-handle-cat="${cat.category}" title="Arrastre para mover esta categoría entera">⠿</span>
               <button type="button" class="ctrl-btn" data-move-cat="up" data-cat="${cat.category}" ${catIdx === 0 ? 'disabled' : ''} title="Mover categoría arriba">▲</button>
               <button type="button" class="ctrl-btn" data-move-cat="down" data-cat="${cat.category}" ${catIdx === breakdown.length - 1 ? 'disabled' : ''} title="Mover categoría abajo">▼</button>
               <button type="button" class="ctrl-btn hide-btn" data-toggle-hide-cat="${cat.category}" title="${isCatHidden ? 'Mostrar categoría' : 'Ocultar categoría'}">
@@ -550,7 +581,6 @@ function renderCategoryBreakdown() {
                 ` : ''}
                 ${isEdit ? `
                   <div class="ctrl-group">
-                    <span class="drag-handle" title="Arrastre para mover este subgrupo">⠿</span>
                     <button type="button" class="ctrl-btn" data-move-sub="up" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === 0 ? 'disabled' : ''} title="Mover subgrupo arriba">▲</button>
                     <button type="button" class="ctrl-btn" data-move-sub="down" data-cat="${cat.category}" data-sub="${sg.subgroup}" ${subIdx === subs.length - 1 ? 'disabled' : ''} title="Mover subgrupo abajo">▼</button>
                     <button type="button" class="ctrl-btn" data-rename-sub data-cat="${cat.category}" data-sub="${sg.subgroup}" title="Cambiar o editar el nombre de este subgrupo">✏️</button>
@@ -1000,6 +1030,9 @@ function openSubgroupProductsModal(category, subgroup) {
   const searchInput = $('#modalProductSearchInput');
   if (searchInput) searchInput.value = '';
   $('#clearModalSearchBtn')?.classList.add('hidden');
+  const availSearchInputInit = $('#modalAvailableSearchInput');
+  if (availSearchInputInit) availSearchInputInit.value = '';
+  $('#clearModalAvailableSearchBtn')?.classList.add('hidden');
   $('#modalNewProductForm')?.classList.add('hidden');
   $('#modalCreateProductPrompt')?.classList.add('hidden');
 
@@ -1082,8 +1115,10 @@ function renderSubgroupModalContent(searchTerm = '') {
     ...salesProducts
   ];
 
-  if (term) {
-    available = available.filter(p => (p.name || '').toLowerCase().includes(term));
+  const availSearchInput = $('#modalAvailableSearchInput');
+  const availTerm = (availSearchInput?.value || '').trim().toLowerCase();
+  if (availTerm) {
+    available = available.filter(p => (p.name || '').toLowerCase().includes(availTerm));
   }
 
   const availCountBadge = $('#modalAvailableCountBadge');
@@ -1372,6 +1407,27 @@ function initSubgroupProductsModal() {
       clearBtn.classList.add('hidden');
       renderSubgroupModalContent('');
       searchInput?.focus();
+    });
+  }
+
+  const availSearchInput = $('#modalAvailableSearchInput');
+  const clearAvailBtn = $('#clearModalAvailableSearchBtn');
+
+  if (availSearchInput) {
+    availSearchInput.addEventListener('input', () => {
+      const val = availSearchInput.value;
+      if (val) clearAvailBtn?.classList.remove('hidden');
+      else clearAvailBtn?.classList.add('hidden');
+      renderSubgroupModalContent($('#modalProductSearchInput')?.value || '');
+    });
+  }
+
+  if (clearAvailBtn) {
+    clearAvailBtn.addEventListener('click', () => {
+      if (availSearchInput) availSearchInput.value = '';
+      clearAvailBtn.classList.add('hidden');
+      renderSubgroupModalContent($('#modalProductSearchInput')?.value || '');
+      availSearchInput?.focus();
     });
   }
 
@@ -2613,6 +2669,42 @@ function bind() {
       } finally {
         syncBtn.disabled = false;
         syncBtn.innerHTML = originalHtml;
+      }
+    };
+  }
+
+  // Backup Export/Import Handlers
+  const exportBackupBtn = $('#btnExportBackup');
+  if (exportBackupBtn) {
+    exportBackupBtn.onclick = () => {
+      window.location.href = '/api/backup-export';
+      toast('Descargando respaldo completo de la base de datos...');
+    };
+  }
+
+  const importBackupInput = $('#inputImportBackup');
+  if (importBackupInput) {
+    importBackupInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!confirm('⚠️ ¿Estás seguro de restaurar este respaldo? Los datos actuales serán reemplazados por el contenido del archivo JSON.')) {
+        e.target.value = '';
+        return;
+      }
+      try {
+        const text = await file.text();
+        const jsonObj = JSON.parse(text);
+        const res = await api('/api/backup-import', 'POST', jsonObj);
+        if (res.success) {
+          toast(res.message);
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          toast(res.error || 'Error al restaurar el respaldo');
+        }
+      } catch (err) {
+        toast(`Error al procesar el archivo JSON: ${err.message}`);
+      } finally {
+        e.target.value = '';
       }
     };
   }
